@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Semantic Layer 탐색</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Serif+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand"><b>Semantic Layer</b> · 스터디</div>
+  <nav class="tabs">
+    <button class="tab active" data-board="sources"><span class="tnum">01</span>시그널 소스</button>
+    <button class="tab" data-board="catalog"><span class="tnum">02</span>Catalog 구조</button>
+    <button class="tab" data-board="info"><span class="tnum">03</span>증강 정보</button>
+  </nav>
+  <div class="spacer"></div>
+  <button class="about-btn" id="aboutBtn">이 스터디에 대하여</button>
+</header>
+
+<main class="stage">
+  <section class="map" id="map"></section>
+  <aside class="panel" id="panel"></aside>
+</main>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

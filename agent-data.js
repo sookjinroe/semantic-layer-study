@@ -9,14 +9,14 @@ window.AGENT_DATA = (function () {
   /* ---------- mock dataset ---------- */
   const STAT = { "01": "정상", "02": "연체", "03": "기한이익상실", "04": "상환완료" };
   const customers = [
-    { CUST_ID: "C01", CUST_NM: "김민수", REGION: "서울", CUST_GRD: "A" },
-    { CUST_ID: "C02", CUST_NM: "이지은", REGION: "서울", CUST_GRD: "B" },
-    { CUST_ID: "C03", CUST_NM: "박철수", REGION: "부산", CUST_GRD: "C" },
-    { CUST_ID: "C04", CUST_NM: "최영희", REGION: "경기", CUST_GRD: "A" },
-    { CUST_ID: "C05", CUST_NM: "정대현", REGION: "부산", CUST_GRD: "B" },
-    { CUST_ID: "C06", CUST_NM: "강수진", REGION: "경기", CUST_GRD: "B" },
-    { CUST_ID: "C07", CUST_NM: "윤서연", REGION: "대구", CUST_GRD: "C" },
-    { CUST_ID: "C08", CUST_NM: "임재호", REGION: "서울", CUST_GRD: "A" },
+    { CUST_ID: "C01", CUST_NM: "김민수", REGION: "서울", CUST_GRD: "A", CUST_EMAIL: "minsu.kim@kmail.com" },
+    { CUST_ID: "C02", CUST_NM: "이지은", REGION: "서울", CUST_GRD: "B", CUST_EMAIL: "jieun.lee@kmail.com" },
+    { CUST_ID: "C03", CUST_NM: "박철수", REGION: "부산", CUST_GRD: "C", CUST_EMAIL: "cspark@bmail.net" },
+    { CUST_ID: "C04", CUST_NM: "최영희", REGION: "경기", CUST_GRD: "A", CUST_EMAIL: "yh.choi@kmail.com" },
+    { CUST_ID: "C05", CUST_NM: "정대현", REGION: "부산", CUST_GRD: "B", CUST_EMAIL: "dh.jung@bmail.net" },
+    { CUST_ID: "C06", CUST_NM: "강수진", REGION: "경기", CUST_GRD: "B", CUST_EMAIL: "sj.kang@kmail.com" },
+    { CUST_ID: "C07", CUST_NM: "윤서연", REGION: "대구", CUST_GRD: "C", CUST_EMAIL: "syyoon@dmail.org" },
+    { CUST_ID: "C08", CUST_NM: "임재호", REGION: "서울", CUST_GRD: "A", CUST_EMAIL: "jhlim@kmail.com" },
   ];
   const loans = [
     { LOAN_ID: "L01", CUST_ID: "C01", LOAN_AMT: 800, INT_RATE: 3.9, LOAN_STAT_CD: "01", DLNQ_FLG: "N", DLNQ_DAYS: 0 },
@@ -46,8 +46,10 @@ window.AGENT_DATA = (function () {
     custDlnqrate: () => new Set(loans.filter(isY).map(r => r.CUST_ID)).size / customers.length * 100,
     dlnqamt: () => sum(loans.filter(isY).map(r => r.LOAN_AMT)),
     avgrate: () => avg(loans.map(r => r.INT_RATE)),
+    avgloan: () => avg(loans.map(r => r.LOAN_AMT)),
     dlnqdays: () => avg(loans.filter(isY).map(r => r.DLNQ_DAYS)),
   };
+  const maskEmail = e => e[0] + "***@" + e.split("@")[1];
   const statDist = () => { const m = {}; loans.forEach(r => m[r.LOAN_STAT_CD] = (m[r.LOAN_STAT_CD] || 0) + 1); return m; };
   const rateBy = (order, keyFn) => order.map(k => { const g = loans.filter(r => keyFn(r) === k); return { k, rate: g.length ? g.filter(isY).length / g.length * 100 : 0, n: g.length }; });
   const regionDlnq = () => rateBy(["서울", "부산", "경기", "대구"], r => custOf[r.CUST_ID].REGION);
@@ -57,15 +59,15 @@ window.AGENT_DATA = (function () {
 
   /* ---------- dashboard components (각 카드 = 하나의 Asset + 계보) ---------- */
   const COMP = {
-    balance: { title: "총 여신잔액", val: () => won(M.balance()), terms: ["대출금액"], role: "measured_by", gloss: "대출금액 Term을 전체 합계로 집계한 값", asset: "총여신잔액", kind: "metric", grain: "집계 · 대출 단위", expr: "SUM(LOAN_AMT)", cols: ["LOAN_AMT"] },
-    dlnqrate: { title: "대출 기준 연체율", val: () => pct(M.dlnqrate()), terms: ["연체"], role: "measured_by", gloss: "연체 Term을 대출 건수 비율로 집계한 값", asset: "연체율", kind: "metric", grain: "집계 · 대출 단위", expr: "COUNT(DLNQ_FLG='Y') / COUNT(*)", cols: ["DLNQ_FLG"], note: "대출 한 건을 단위로 센 연체율. '차주 기준'과 분모가 달라 — grain 차이." },
-    custdlnqrate: { title: "차주 기준 연체율", val: () => pct(M.custDlnqrate()), terms: ["연체", "고객"], role: "measured_by", gloss: "연체 Term을 고객 단위 비율로 집계한 값", asset: "차주연체율", kind: "metric", grain: "집계 · 고객 단위", expr: "연체 보유 고객 수 / 전체 고객 수", cols: ["CUST_ID", "DLNQ_FLG"], combo: 1, join: "loans ⋈ customers · CUST_ID", note: "대출 단위 데이터를 고객 단위로 재집계 — 한 고객이 여러 대출을 가질 수 있어 대출 기준(46.2%)과 값이 달라짐(그레인 증강)." },
-    dlnqamt: { title: "연체채권액", val: () => won(M.dlnqamt()), terms: ["연체", "대출금액"], role: "measured_by", gloss: "연체 대출의 대출금액을 합계로 집계한 값", asset: "연체채권액", kind: "metric", grain: "집계 · 대출 단위", expr: "SUM(LOAN_AMT) WHERE DLNQ_FLG='Y'", cols: ["LOAN_AMT", "DLNQ_FLG"], combo: 1, note: "두 개념(연체·대출금액)이 한 지표로 묶임." },
-    dlnqratio: { title: "금액 기준 연체율", val: () => pct(M.dlnqamt() / M.balance() * 100), terms: ["연체", "대출금액"], role: "measured_by", gloss: "연체채권액을 총여신잔액으로 나눠 집계한 값", asset: "연체채권비율", kind: "metric", grain: "집계 · 대출 단위", expr: "연체채권액 ÷ 총여신잔액", cols: ["LOAN_AMT", "DLNQ_FLG"], combo: 1, note: "메트릭으로 등록된 파생 지표 — 두 지표의 비율을 식으로 박아둠(메트릭 증강)." },
-    avgrate: { title: "평균 금리", val: () => pct(M.avgrate()), terms: ["금리"], role: "measured_by", gloss: "금리 Term을 평균으로 집계한 값", asset: "평균금리", kind: "metric", grain: "집계 · 대출 단위", expr: "AVG(INT_RATE)", cols: ["INT_RATE"] },
-    chartRegion: { title: "지역별 연체율", val: () => "분포", terms: ["지역", "연체"], role: "exposed_as × measured_by", asset: "지역(필드) × 연체율(지표)", kind: "field", grain: "차원 × 집계", expr: "JOIN customers → GROUP BY REGION → 연체율", cols: ["CUST_ID", "REGION", "DLNQ_FLG"], combo: 1, join: "loans ⋈ customers · CUST_ID(FK)", note: "지역은 customers 테이블에 있어 join해야 쪼갤 수 있음(join 증강)." },
-    chartDays: { title: "연체일수 구간별 연체채권액", val: () => "분포", terms: ["연체일수", "연체", "대출금액"], role: "exposed_as × measured_by", asset: "연체일수 구간(파생 필드) × 연체채권액(지표)", kind: "field", grain: "차원 × 집계", expr: "WHERE DLNQ_FLG='Y' → BUCKET(DLNQ_DAYS: 1–30 / 31–90 / 91+) → GROUP BY 구간 → SUM(LOAN_AMT)", cols: ["DLNQ_DAYS", "LOAN_AMT", "DLNQ_FLG"], combo: 1, join: "없음 — DLNQ_DAYS·LOAN_AMT 모두 loans에 있어 join 불필요", note: "연체일수를 구간으로 묶은 파생 필드를 축으로 삼아 그 위에서 연체채권액을 잰 것. 구간 정의가 asset이고 loans 한 표 안에서 끝나 join 불필요." },
-    chartStat: { title: "대출상태별 건수", val: () => "분포", terms: ["대출상태"], role: "exposed_as", asset: "대출상태", kind: "field", grain: "차원", expr: "GROUP BY LOAN_STAT_CD → COUNT(*)", cols: ["LOAN_STAT_CD"], note: "loans 안에서 끝나 join 불필요. 코드값은 값 사전으로 라벨링." },
+    balance: { title: "총 여신잔액", tag: "단일 Term · 파생", val: () => won(M.balance()), terms: ["대출금액"], role: "measured_by", gloss: "대출금액 Term을 전체 합계로 집계한 값", asset: "총여신잔액", kind: "metric", grain: "집계 · 대출 단위", expr: "SUM(LOAN_AMT)", cols: ["LOAN_AMT"] },
+    dlnqrate: { title: "대출 기준 연체율", tag: "그레인: 대출 · 파생", val: () => pct(M.dlnqrate()), terms: ["연체"], role: "measured_by", gloss: "연체 Term을 대출 건수 비율로 집계한 값", asset: "연체율", kind: "metric", grain: "집계 · 대출 단위", expr: "COUNT(DLNQ_FLG='Y') / COUNT(*)", cols: ["DLNQ_FLG"], note: "대출 한 건을 단위로 센 연체율. '차주 기준'과 분모가 달라 — grain 차이." },
+    custdlnqrate: { title: "차주 기준 연체율", tag: "그레인 재집계 · join", val: () => pct(M.custDlnqrate()), terms: ["연체", "고객"], role: "measured_by", gloss: "연체 Term을 고객 단위 비율로 집계한 값", asset: "차주연체율", kind: "metric", grain: "집계 · 고객 단위", expr: "연체 보유 고객 수 / 전체 고객 수", cols: ["CUST_ID", "DLNQ_FLG"], combo: 1, join: "loans ⋈ customers · CUST_ID", note: "대출 단위 데이터를 고객 단위로 재집계 — 한 고객이 여러 대출을 가질 수 있어 대출 기준(46.2%)과 값이 달라짐(그레인 증강)." },
+    dlnqamt: { title: "연체채권액", tag: "두 Term 결합 · 파생", val: () => won(M.dlnqamt()), terms: ["연체", "대출금액"], role: "measured_by", gloss: "연체 대출의 대출금액을 합계로 집계한 값", asset: "연체채권액", kind: "metric", grain: "집계 · 대출 단위", expr: "SUM(LOAN_AMT) WHERE DLNQ_FLG='Y'", cols: ["LOAN_AMT", "DLNQ_FLG"], combo: 1, note: "두 개념(연체·대출금액)이 한 지표로 묶임." },
+    dlnqratio: { title: "금액 기준 연체율", tag: "지표÷지표 · 저작", val: () => pct(M.dlnqamt() / M.balance() * 100), terms: ["연체", "대출금액"], role: "measured_by", gloss: "연체채권액을 총여신잔액으로 나눠 집계한 값", asset: "연체채권비율", kind: "metric", grain: "집계 · 대출 단위", expr: "연체채권액 ÷ 총여신잔액", cols: ["LOAN_AMT", "DLNQ_FLG"], combo: 1, note: "메트릭으로 등록된 파생 지표 — 두 지표의 비율을 식으로 박아둠(메트릭 증강)." },
+    avgrate: { title: "평균 금리", tag: "단일 Term · 파생", val: () => pct(M.avgrate()), terms: ["금리"], role: "measured_by", gloss: "금리 Term을 평균으로 집계한 값", asset: "평균금리", kind: "metric", grain: "집계 · 대출 단위", expr: "AVG(INT_RATE)", cols: ["INT_RATE"] },
+    chartRegion: { title: "지역별 연체율", tag: "교차표 join · 파생", val: () => "분포", terms: ["지역", "연체"], role: "exposed_as × measured_by", asset: "지역(필드) × 연체율(지표)", kind: "field", grain: "차원 × 집계", expr: "JOIN customers → GROUP BY REGION → 연체율", cols: ["CUST_ID", "REGION", "DLNQ_FLG"], combo: 1, join: "loans ⋈ customers · CUST_ID(FK)", note: "지역은 customers 테이블에 있어 join해야 쪼갤 수 있음(join 증강)." },
+    chartDays: { title: "연체일수 구간별 연체채권액", tag: "파생 차원 · 저작", val: () => "분포", terms: ["연체일수", "연체", "대출금액"], role: "exposed_as × measured_by", asset: "연체일수 구간(파생 필드) × 연체채권액(지표)", kind: "field", grain: "차원 × 집계", expr: "WHERE DLNQ_FLG='Y' → BUCKET(DLNQ_DAYS: 1–30 / 31–90 / 91+) → GROUP BY 구간 → SUM(LOAN_AMT)", cols: ["DLNQ_DAYS", "LOAN_AMT", "DLNQ_FLG"], combo: 1, join: "없음 — DLNQ_DAYS·LOAN_AMT 모두 loans에 있어 join 불필요", note: "연체일수를 구간으로 묶은 파생 필드를 축으로 삼아 그 위에서 연체채권액을 잰 것. 구간 정의가 asset이고 loans 한 표 안에서 끝나 join 불필요." },
+    chartStat: { title: "대출상태별 건수", tag: "차원 분해 · 값 사전", val: () => "분포", terms: ["대출상태"], role: "exposed_as", asset: "대출상태", kind: "field", grain: "차원", expr: "GROUP BY LOAN_STAT_CD → COUNT(*)", cols: ["LOAN_STAT_CD"], note: "loans 안에서 끝나 join 불필요. 코드값은 값 사전으로 라벨링." },
   };
   const KPI_ORDER = ["balance", "dlnqamt", "avgrate", "dlnqrate", "custdlnqrate", "dlnqratio"];
   const CHART_ORDER = ["chartRegion", "chartDays", "chartStat"];
@@ -134,14 +136,14 @@ window.AGENT_DATA = (function () {
   /* ---------- agent console: 예시 질문 ---------- */
   const Q = [
     {
-      q: "연체율이 어떻게 돼?",
+      q: "연체율이 어떻게 돼?", grp: "ok", tag: "measured_by · 그레인 정본",
       steps: [{ l: "Term 매칭", flow: [{ q: '"연체율"' }, { term: "연체" }, { dim: "+ 측정 의도" }] }],
       links: [{ term: "연체", role: "measured_by", asset: "연체율", kind: "metric", conf: "HIGH" }],
       plan: [["fn", "SELECT"], ["t", " COUNT(DLNQ_FLG="], ["st", "'Y'"], ["t", ") / COUNT(*)\n"], ["kw", "FROM"], ["t", " loans"]],
       result: () => ({ type: "scalar", label: "대출 기준 연체율", val: pct(M.dlnqrate()) }), cols: ["DLNQ_FLG"],
     },
     {
-      q: "연체된 대출 목록 보여줘",
+      q: "연체된 대출 목록 보여줘", grp: "ok", tag: "stored_as · 목록은 행",
       steps: [
         { l: "Term 매칭", flow: [{ q: '"연체된"' }, { term: "연체" }, { dim: '· "목록" → 행이 필요' }] },
         { l: "grain 분기", text: "측정(46.2%)이 아니라 <b>행</b>으로 — 목록 요청이라 stored_as 선택" },
@@ -151,7 +153,7 @@ window.AGENT_DATA = (function () {
       result: () => ({ type: "table", head: ["LOAN_ID", "CUST_ID", "LOAN_AMT", "DLNQ_DAYS"], body: loans.filter(isY).map(r => [r.LOAN_ID, r.CUST_ID, won(r.LOAN_AMT), r.DLNQ_DAYS + "일"]) }), cols: ["DLNQ_FLG"],
     },
     {
-      q: "기한이익상실 건 총액",
+      q: "기한이익상실 건 총액", grp: "ok", tag: "값 사전 · 런타임 검색",
       steps: [
         { l: "Term 매칭", flow: [{ q: '"기한이익상실" →' }, { term: "대출상태" }, { dim: '의 코드값 · "총액" → 금액 합' }] },
         { l: "값 사전", text: "<b>기한이익상실</b> → LOAN_STAT_CD=<code>'03'</code> <span class='ag-dim'>(코드↔의미 사전)</span>" },
@@ -164,14 +166,14 @@ window.AGENT_DATA = (function () {
       result: () => ({ type: "scalar", label: "기한이익상실 건 총액", val: won(sum(loans.filter(r => r.LOAN_STAT_CD === "03").map(r => r.LOAN_AMT))) }), cols: ["LOAN_STAT_CD", "LOAN_AMT"],
     },
     {
-      q: "연체 채권 얼마야?",
+      q: "연체 채권 얼마야?", grp: "ok", tag: "두 Term → 한 지표",
       steps: [{ l: "Term 매칭", flow: [{ term: "연체" }, { dim: "+" }, { term: "대출금액" }, { dim: "→ 연체 필터 위 금액 합" }] }],
       links: [{ terms: ["연체", "대출금액"], role: "measured_by", asset: "연체채권액", kind: "metric", conf: "HIGH" }],
       plan: [["fn", "SELECT"], ["t", " SUM(LOAN_AMT)\n"], ["kw", "FROM"], ["t", " loans "], ["kw", "WHERE"], ["t", " DLNQ_FLG="], ["st", "'Y'"]],
       result: () => ({ type: "scalar", label: "연체채권액", val: won(M.dlnqamt()) }), cols: ["LOAN_AMT", "DLNQ_FLG"],
     },
     {
-      q: "금액 기준 연체율은?",
+      q: "금액 기준 연체율은?", grp: "ok", tag: "등록된 파생 지표 · 저작",
       steps: [
         { l: "Term 매칭", text: '"금액 기준 연체율" → 등록된 파생 지표' },
         { l: "메트릭", text: "두 지표를 나눈 식이 <b>메트릭 Asset</b>으로 등록돼 있어 식을 안 지어냄" },
@@ -181,7 +183,7 @@ window.AGENT_DATA = (function () {
       result: () => ({ type: "scalar", label: "금액 기준 연체율", val: pct(M.dlnqamt() / M.balance() * 100) }), cols: ["LOAN_AMT", "DLNQ_FLG"],
     },
     {
-      q: "지역별 연체율",
+      q: "지역별 연체율", grp: "ok", tag: "exposed_as · join 차원",
       steps: [
         { l: "Term 매칭", flow: [{ term: "지역" }, { dim: "축" }, { term: "연체" }, { dim: "값" }] },
         { l: "join", text: "<span class='ag-join'>JOIN</span> 지역은 customers에 있음 → loans ⋈ customers <span class='ag-dim'>(CUST_ID FK)</span>" },
@@ -194,20 +196,7 @@ window.AGENT_DATA = (function () {
       result: () => ({ type: "dist", rows: regionDlnq().map(x => ({ l: `${x.k} (${x.n}건)`, v: x.rate, max: 100, suf: "%", metric: 1, fixed: 1 })) }), cols: ["CUST_ID", "REGION", "DLNQ_FLG"],
     },
     {
-      q: "고객등급별 연체율",
-      steps: [
-        { l: "Term 매칭", flow: [{ term: "고객등급" }, { dim: "축" }, { term: "연체" }, { dim: "값" }] },
-        { l: "join", text: "<span class='ag-join'>JOIN</span> 등급은 customers에 있음 → loans ⋈ customers <span class='ag-dim'>(CUST_ID FK)</span>" },
-      ],
-      links: [
-        { term: "고객등급", role: "exposed_as", asset: "CUST_GRD 필드", kind: "field", join: 1, via: "고객등급은 customers에 있어 CUST_ID로 join" },
-        { term: "연체", role: "measured_by", asset: "연체율", kind: "metric", conf: "HIGH" },
-      ],
-      plan: [["fn", "SELECT"], ["t", " c.CUST_GRD, COUNT(DLNQ_FLG="], ["st", "'Y'"], ["t", ")/COUNT(*)\n"], ["kw", "FROM"], ["t", " loans l "], ["kw", "JOIN"], ["t", " customers c "], ["kw", "ON"], ["t", " l.CUST_ID=c.CUST_ID\n"], ["kw", "GROUP BY"], ["t", " c.CUST_GRD"]],
-      result: () => ({ type: "dist", rows: gradeDlnq().map(x => ({ l: `${x.k}등급 (${x.n}건)`, v: x.rate, max: 100, suf: "%", metric: 1, fixed: 1 })) }), cols: ["CUST_ID", "CUST_GRD", "DLNQ_FLG"],
-    },
-    {
-      q: "차주 기준 연체율은?",
+      q: "차주 기준 연체율은?", grp: "ok", tag: "그레인 재집계",
       steps: [
         { l: "Term 매칭", flow: [{ term: "연체" }, { dim: "+ 단위 = 차주(고객)" }] },
         { l: "그레인 재집계", text: "대출 단위를 <b>고객 단위</b>로 다시 묶음 — 연체 보유 고객 ÷ 전체 고객" },
@@ -218,7 +207,7 @@ window.AGENT_DATA = (function () {
       result: () => ({ type: "metrics", rows: [{ l: "대출 기준 연체율", v: pct(M.dlnqrate()) }, { l: "차주 기준 연체율", v: pct(M.custDlnqrate()) }] }), cols: ["CUST_ID", "DLNQ_FLG"],
     },
     {
-      q: "여신 건전성 요약",
+      q: "여신 건전성 요약", grp: "ok", tag: "다중 Link 조립",
       steps: [
         { l: "Term 매칭", flow: [{ q: '"요약" → 핵심 Term' }, { term: "대출금액" }, { term: "연체" }, { term: "금리" }] },
         { l: "조립", text: "아래 여러 링크를 동시에 끌어와 한 답으로 — 매칭이 넓을수록 요약이 풍부" },
@@ -233,13 +222,73 @@ window.AGENT_DATA = (function () {
       result: () => ({ type: "metrics", rows: [{ l: "총 여신잔액", v: won(M.balance()) }, { l: "연체율(대출)", v: pct(M.dlnqrate()) }, { l: "연체채권액", v: won(M.dlnqamt()) }, { l: "금액 기준 연체율", v: pct(M.dlnqamt() / M.balance() * 100) }, { l: "평균 금리", v: pct(M.avgrate()) }] }), cols: ["LOAN_AMT", "DLNQ_FLG", "INT_RATE"],
     },
     {
-      q: "연체 현황 어디서 봐?",
+      q: "연체 현황 어디서 봐?", grp: "ok", tag: "shown_in · 안내",
       steps: [{ l: "Term 매칭", flow: [{ term: "연체" }, { dim: "→ 위치/탐색 의도" }] }],
       links: [{ term: "연체", role: "shown_in", asset: "여신 건전성 모니터", kind: "dashboard", conf: "HIGH" }],
       plan: [["cm", "// 쿼리 생성 아님 — 기존 BI로 안내"]],
       result: () => ({ type: "nav", val: "여신 건전성 모니터 ▸ 연체율 · 연체채권액 · 지역별 카드" }), cols: ["DLNQ_FLG"], nav: 1,
     },
+
+    /* ---------- 경계가 드러나는 경로 (04 레이어의 경계 개념의 실연) ---------- */
+    {
+      q: "고객 등급별로 연체율 쪼개줘", grp: "edge", tag: "Link 없음 → Description 폴백",
+      steps: [
+        { l: "Term 매칭", text: `<span class="ag-dim">"연체"</span> → <span class="ag-badge ag-b-term">연체</span> <span class="ag-dim">hit · "등급" →</span> <span class="ag-badge ag-b-none">Term 없음</span> <span class="ag-dim">(글로서리 미등록)</span>` },
+        { l: "폴백 — Description 추론", text: `확정 Link 없음 → 컬럼 Description 탐색 → <code>CUST_GRD</code> <span class="ag-dim">"고객 신용등급으로 추정. A·B·C 3단계이나 등급 산정 기준·서열 의미 미확인"</span> <span class="ag-badge ag-b-med">MEDIUM</span>` },
+        { l: "한계 표시", text: `답은 내되, 축의 의미가 <b>추정</b>임을 결과에 명시 — 확정이 아니라 접근` },
+      ],
+      links: [
+        { term: "연체", role: "measured_by", asset: "연체율", kind: "metric", conf: "HIGH" },
+        { termHtml: `<span class="ag-badge ag-b-none">(미등록)</span>`, role: "exposed_as", asset: "CUST_GRD", kind: "column", conf: "MEDIUM", via: "Description 추론 — 확정 Link 없음, 유사도 기반" },
+      ],
+      plan: [["fn", "SELECT"], ["t", " c.CUST_GRD, COUNT(DLNQ_FLG="], ["st", "'Y'"], ["t", ")/COUNT(*)\n"], ["kw", "FROM"], ["t", " loans l "], ["kw", "JOIN"], ["t", " customers c "], ["kw", "ON"], ["t", " l.CUST_ID=c.CUST_ID\n"], ["kw", "GROUP BY"], ["t", " c.CUST_GRD"]],
+      result: () => ({ type: "table", head: ["CUST_GRD", "연체율", "건수"], body: gradeDlnq().map(g => [g.k, pct(g.rate), g.n + "건"]), note: `등급 축은 <b>Description 추론(MEDIUM)</b> 기반 — 확정 Link가 없고, 등급 서열의 의미는 미확인입니다.` }), cols: ["CUST_ID", "CUST_GRD", "DLNQ_FLG"],
+    },
+    {
+      q: "건당 평균 대출금액은?", grp: "edge", tag: "파생 Link 즉석 합성",
+      steps: [
+        { l: "Term 매칭", text: `<span class="ag-dim">"평균 대출금액" →</span> <span class="ag-badge ag-b-term">대출금액</span> <span class="ag-dim">+ 평균 의도</span>` },
+        { l: "Link 조회", text: `BI에 '평균대출금액' 메트릭은 등록돼 있으나 — asset→Term Link는 <b>적힌 줄 없음</b>` },
+        { l: "즉석 합성", text: `references: <code>AVG(LOAN_AMT)</code> → <code>LOAN_AMT</code> → <span class="ag-dim">(컬럼→Term)</span> → <span class="ag-badge ag-b-term">대출금액</span> · 집계식 메트릭 → 역할 <code>measured_by</code> 자동` },
+      ],
+      links: [{ term: "대출금액", role: "measured_by", asset: "평균대출금액", kind: "metric", conf: "HIGH", via: "즉석 합성 — references ∘ 컬럼→Term · 신뢰도는 입력(컬럼 Link HIGH)을 상속" }],
+      plan: [["fn", "SELECT"], ["t", " AVG(LOAN_AMT)\n"], ["kw", "FROM"], ["t", " loans"]],
+      result: () => ({ type: "scalar", label: "건당 평균 대출금액", val: won(Math.round(M.avgloan() * 10) / 10) }), cols: ["LOAN_AMT"],
+    },
+    {
+      q: "연체 고객 명단이랑 이메일 줘", grp: "edge", tag: "Classification · 실행 게이트",
+      steps: [
+        { l: "Term 매칭", text: `<span class="ag-badge ag-b-term">연체</span> <span class="ag-dim">+</span> <span class="ag-badge ag-b-term">고객</span> <span class="ag-dim">· "명단" → 행 필요 → stored_as</span>` },
+        { l: "쿼리 조립", text: `정상 — <span class="ag-dim">여기까지 답은 '맞다'</span>` },
+        { l: "실행 게이트", text: `결과 컬럼 민감도 확인 → <code>CUST_EMAIL</code> = <b>PII</b> → 마스킹 후 반환 <span class="ag-dim">(쿼리가 아니라 실행 단계의 게이트)</span>` },
+      ],
+      links: [
+        { term: "연체", role: "stored_as", asset: "DLNQ_FLG", kind: "column", conf: "HIGH" },
+        { term: "고객", role: "stored_as", asset: "CUST_EMAIL", kind: "column", conf: "HIGH", via: "Classification: PII — 실행 직전 마스킹" },
+      ],
+      plan: [["fn", "SELECT DISTINCT"], ["t", " c.CUST_ID, c.CUST_NM, c.CUST_EMAIL\n"], ["kw", "FROM"], ["t", " customers c "], ["kw", "JOIN"], ["t", " loans l "], ["kw", "ON"], ["t", " c.CUST_ID=l.CUST_ID\n"], ["kw", "WHERE"], ["t", " l.DLNQ_FLG="], ["st", "'Y'"], ["t", "   "], ["cm", "— 쿼리 자체는 무수정"]],
+      result: () => {
+        const ids = [...new Set(loans.filter(isY).map(r => r.CUST_ID))];
+        return { type: "table", head: ["CUST_ID", "CUST_NM", "CUST_EMAIL"], body: ids.map(id => [id, custOf[id].CUST_NM, { mask: maskEmail(custOf[id].CUST_EMAIL) }]), note: `<b>PII 분류</b>에 따라 이메일이 마스킹됐습니다 — 답이 틀려서가 아니라, 맞는 답을 그대로 내보내지 않기 위한 실행 단계의 게이트.` };
+      }, cols: ["DLNQ_FLG", "CUST_EMAIL"],
+    },
+    {
+      q: "그 연체율 숫자, 어디서 나온 거야?", grp: "edge", tag: "lineage · 출처 추적",
+      steps: [
+        { l: "의도 분기", text: `값 요청이 아니라 <b>출처 질문</b> → 쿼리 생성 아님, 계보(lineage) 탐색` },
+        { l: "상류 추적", text: `<span class="ag-badge ag-b-term">연체</span>의 지표 <code>연체율</code> ← 식 <code>COUNT(DLNQ_FLG='Y')/COUNT(*)</code> ← 원천 컬럼 <code>loans.DLNQ_FLG</code>` },
+      ],
+      links: [{ term: "연체", role: "measured_by", asset: "연체율", kind: "metric", conf: "HIGH", via: "lineage 상류 — 라우팅이 아니라 출처 질문에서 동원되는 정보" }],
+      plan: [["cm", "// 쿼리 생성 아님 — 계보 탐색"]],
+      result: () => ({ type: "nav", val: "연체율 ← COUNT(DLNQ_FLG='Y')/COUNT(*) ← loans.DLNQ_FLG" }), cols: ["DLNQ_FLG"], nav: 1,
+    },
   ];
+
+  /* ---------- 질문 그룹 (정상 / 경계) ---------- */
+  const Q_GROUPS = {
+    ok:   { name: "정상 경로", note: "레이어가 완비됐을 때 — 같은 의미 구조를 역할·그레인 따라 탄다" },
+    edge: { name: "경계가 드러나는 경로", note: "정보가 없거나, 적혀 있지 않거나, 게이트가 걸릴 때 (→ 04 레이어의 경계)" },
+  };
 
   /* ---------- bridge: 개념 복습 (개념을 주어로, 카드 속 위치를 색 단서로) ---------- */
   const bridge = {
@@ -267,6 +316,6 @@ window.AGENT_DATA = (function () {
     STAT, customers, loans, custOf,
     isY, sum, avg, won, pct, M, statDist, regionDlnq, gradeDlnq, daysDist,
     COMP, KPI_ORDER, CHART_ORDER, KIND_KO, ROLE_GLOSS, GRAIN_GLOSS,
-    LINK, PLAIN, CARD_LINK, LOAN_COLS, CUST_COLS, CATALOG, CONF_GLOSS, Q, bridge,
+    LINK, PLAIN, CARD_LINK, LOAN_COLS, CUST_COLS, CATALOG, CONF_GLOSS, Q, Q_GROUPS, bridge, maskEmail,
   };
 })();

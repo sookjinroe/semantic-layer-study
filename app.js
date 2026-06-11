@@ -6,18 +6,20 @@
   "use strict";
   const D = window.DATA;
   const AGENT = window.AGENT;
+  const BOUNDARY = window.BOUNDARY;
   const SRC = {}; D.sources.forEach(s => SRC[s.id] = s);
   const INFO = {}; D.info.forEach(i => INFO[i.id] = i);
   const COLORVAR = { db: "--c-db", code: "--c-code", bi: "--c-bi", catalog: "--c-catalog" };
   const cvar = id => `var(${COLORVAR[id]})`;
 
-  const state = { board: "sources", sel: { type: null, id: null }, dataDrill: false };
+  const state = { board: "sources", sel: { type: null, id: null }, dataDrill: false, modeFilter: null };
 
   /* nav — agent.js builders call back into here to mutate state + re-render */
   const nav = {
     select(type, id) { state.sel = { type, id }; render(); },
     drillData(colId) { state.dataDrill = true; state.sel = colId ? { type: "col", id: colId } : { type: null, id: null }; render(); },
     backCards() { state.dataDrill = false; state.sel = { type: null, id: null }; render(); },
+    setMode(m) { state.modeFilter = m; render(); },
   };
   let pendingDrawIn = false;   // true only when ENTERING a board (tab switch) — drives edge draw-in, not selections
   let drawSeq = 0;             // per-layout stagger counter
@@ -54,6 +56,7 @@
       state.board = t.dataset.board;
       state.sel = { type: null, id: null };
       state.dataDrill = false;
+      state.modeFilter = null;
       pendingDrawIn = true;
       syncTabs();
       render();
@@ -75,6 +78,7 @@
     if (state.board === "catalog") renderCatalogBoard();
     else if (state.board === "sources") renderSourcesBoard();
     else if (state.board === "info") renderInfoBoard();
+    else if (state.board === "boundary") renderBoundaryBoard();
     else if (state.board === "dashboard") renderDashboardBoard();
     else if (state.board === "console") renderConsoleBoard();
     renderPanel();
@@ -220,6 +224,14 @@
         else n.classList.toggle("dim", !src.feeds.includes(n.dataset.id));
       }
     });
+  }
+
+  /* ===== BOARD: BOUNDARY (CH3.5 레이어의 경계) ===== */
+  function renderBoundaryBoard() {
+    const canvas = mapShell("레이어의 경계 — 에이전트가 추론으로 메울 수 없는 것",
+      "행 = 빠졌을 때 에이전트가 짊어질 추론 · 카드 색 = 그 정보가 생겨나는 방식 · 카드를 클릭");
+    canvas.classList.add("ag-canvas");
+    BOUNDARY.build(canvas, state, nav);
   }
 
   /* ===== BOARD: CATALOG DRILL-IN ===== */
@@ -399,6 +411,8 @@
     else if (state.sel.type === "source") panelSource(pad, state.sel.id);
     else if (state.sel.type === "info") panelInfo(pad, state.sel.id);
     else if (state.board === "info") panelInfoIntro(pad);
+    else if (state.sel.type === "bound") BOUNDARY.panelItem(pad, state.sel.id);
+    else if (state.board === "boundary") BOUNDARY.panelIntro(pad);
     else if (state.board === "dashboard") {
       if (state.dataDrill) { if (state.sel.type === "col") AGENT.panelCol(pad, state.sel.id); else AGENT.panelColIntro(pad); }
       else if (state.sel.type === "comp") AGENT.panelComp(pad, state.sel.id, nav);

@@ -17,9 +17,10 @@
     <button class="tab active" data-board="sources"><span class="tnum">01</span>시그널 소스</button>
     <button class="tab" data-board="catalog"><span class="tnum">02</span>Catalog 구조</button>
     <button class="tab" data-board="info"><span class="tnum">03</span>증강 정보</button>
+    <button class="tab" data-board="boundary"><span class="tnum">04</span>레이어의 경계</button>
     <span class="tab-sep" aria-hidden="true"></span>
-    <button class="tab" data-board="dashboard"><span class="tnum">04</span>Dashboard 예시</button>
-    <button class="tab" data-board="console"><span class="tnum">05</span>Agent 활용 예시</button>
+    <button class="tab applied" data-board="dashboard"><span class="tnum">A</span>Dashboard 예시</button>
+    <button class="tab applied" data-board="console"><span class="tnum">B</span>Agent 활용 예시</button>
   </nav>
   <div class="spacer"></div>
   <button class="about-btn" id="aboutBtn">이 스터디에 대하여</button>
@@ -32,7 +33,18 @@
 
 <script src="data.js"></script>
 <script src="agent-data.js"></script>
+<script src="boundary-data.js"></script>
 <script src="agent.js"></script>
+<script src="boundary.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
+
+<style id="__om-edit-overrides">
+#panel div:nth-child(4) div:nth-child(1) .ag-pipe-k { font-family: "IBM Plex Mono" !important }
+div:nth-child(4) >.ag-pipe >div:nth-child(2) .ag-pipe-k { font-family: "IBM Plex Mono" !important }
+#panel .ag-pipe >div:nth-child(3) .ag-pipe-k { font-family: "IBM Plex Mono" !important }
+#panel .ag-pipe >div:nth-child(3) .ag-pipe-k { font-family: "IBM Plex Sans KR" !important }
+div:nth-child(4) >.ag-pipe >div:nth-child(2) .ag-pipe-k { font-family: "IBM Plex Sans KR" !important }
+#panel div:nth-child(4) div:nth-child(1) .ag-pipe-k { font-family: "IBM Plex Sans KR" !important }
+</style>

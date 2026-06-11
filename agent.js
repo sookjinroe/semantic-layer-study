@@ -67,14 +67,16 @@ window.AGENT = (function () {
   function kpiCard(id, state, nav) {
     const c = A.COMP[id];
     const card = h("button", "ag-card" + (selected(state, id) ? " on" : ""));
-    card.innerHTML = `<div class="ag-lab">${c.title}</div><div class="ag-num">${c.val()}</div>`;
+    const tag = c.tag ? `<span class="ag-card-tag">${c.tag}</span>` : "";
+    card.innerHTML = `<div class="ag-lab">${c.title}</div><div class="ag-num">${c.val()}</div>${tag}`;
     card.addEventListener("click", () => nav.select("comp", id));
     return card;
   }
   function chartCard(id, inner, state, nav) {
     const c = A.COMP[id];
     const card = h("button", "ag-card ag-card-chart" + (selected(state, id) ? " on" : ""));
-    card.innerHTML = `<div class="ag-lab">${c.title}</div>${inner}`;
+    const tag = c.tag ? `<span class="ag-card-tag">${c.tag}</span>` : "";
+    card.innerHTML = `<div class="ag-lab">${c.title}</div>${inner}${tag}`;
     card.addEventListener("click", () => nav.select("comp", id));
     return card;
   }
@@ -146,15 +148,26 @@ window.AGENT = (function () {
      맵: 질의 콘솔 (예시 질문 갤러리)
      ============================================================ */
   function buildConsole(canvas, state, nav) {
-    const grid = h("div", "ag-qgrid");
-    A.Q.forEach((item, i) => {
-      const on = state.sel.type === "q" && state.sel.id === i;
-      const chip = h("button", "ag-chip" + (on ? " on" : ""));
-      chip.innerHTML = `<span class="ag-chip-q">❯</span><span>${item.q}</span>`;
-      chip.addEventListener("click", () => nav.select("q", i));
-      grid.appendChild(chip);
+    const G = A.Q_GROUPS;
+    ["ok", "edge"].forEach(g => {
+      const items = A.Q.map((it, i) => ({ it, i })).filter(x => (x.it.grp || "ok") === g);
+      if (!items.length) return;
+      const group = h("div", "ag-qgroup");
+      const gd = g === "edge" ? "var(--accent)" : "var(--fg-faint)";
+      group.appendChild(h("div", "ag-qgrp",
+        `<span class="ag-gd" style="background:${gd}"></span>${G[g].name}<span class="ag-gn">— ${G[g].note}</span>`));
+      const stack = h("div", "ag-qstack");
+      items.forEach(({ it, i }) => {
+        const on = state.sel.type === "q" && state.sel.id === i;
+        const chip = h("button", "ag-chip" + (on ? " on" : ""));
+        const tag = it.tag ? `<span class="ag-chip-tag${g === "edge" ? " edge" : ""}">${it.tag}</span>` : "";
+        chip.innerHTML = `<span class="ag-chip-q">❯</span><span class="ag-chip-t">${it.q}</span>${tag}`;
+        chip.addEventListener("click", () => nav.select("q", i));
+        stack.appendChild(chip);
+      });
+      group.appendChild(stack);
+      canvas.appendChild(group);
     });
-    canvas.appendChild(grid);
   }
 
   /* ============================================================
@@ -298,7 +311,7 @@ window.AGENT = (function () {
      패널: 질의 콘솔 기본 / 처리 과정(trace)
      ============================================================ */
   function panelConsoleIntro(pad) {
-    pad.appendChild(h("div", "p-kicker", `<span class="swatch" style="background:var(--accent)"></span>CH4 · Agent`));
+    pad.appendChild(h("div", "p-kicker", `<span class="swatch" style="background:var(--accent)"></span>Agent · 질의 콘솔`));
     pad.appendChild(h("h2", "p-title", "Trace 읽는 법"));
     pad.appendChild(h("p", "p-lead", "대시보드가 미리 만든 카드라면, 에이전트는 즉석에서 같은 의미 구조를 타고 답을 만든다. 질문을 고르면 우측에 처리 <b>trace</b>가 펼쳐지는데, 각 줄을 이렇게 읽는다."));
 
@@ -310,6 +323,13 @@ window.AGENT = (function () {
       steps.appendChild(h("div", "ag-pipe-step", `<span class="ag-pipe-n">${i + 1}</span><div><div class="ag-pipe-k">${k}</div><div class="ag-pipe-v">${v}</div></div>`));
     });
     pad.appendChild(sec("처리 단계 — 우측 trace 읽는 순서", steps, true));
+
+    const paths = h("div", "ag-pipe");
+    [["정상 경로", "레이어가 완비됐을 때 — 같은 의미 구조를 역할·그레인 따라 깔끔하게 탄다"],
+    ["경계가 드러나는 경로", "정보가 없거나, 적혀 있지 않거나, 게이트가 걸릴 때 — <b>04 레이어의 경계</b>의 개념이 실제로 드러난다"]].forEach(([k, v]) => {
+      paths.appendChild(h("div", "ag-pipe-step", `<span class="ag-pipe-n">·</span><div><div class="ag-pipe-k">${k}</div><div class="ag-pipe-v">${v}</div></div>`));
+    });
+    pad.appendChild(sec("두 갈래 — 왼쪽 질문 목록의 두 그룹", paths, true));
 
     pad.appendChild(h("div", "ag-note", "핵심 — 같은 <b>연체</b>라도 <b>목록</b>이면 컬럼(stored_as)으로, <b>비율</b>이면 지표(measured_by)로 내려간다. 질문의 의도에 따라 같은 개념이 다른 Link를 타는 데 주목하세요."));
   }
@@ -350,21 +370,26 @@ window.AGENT = (function () {
   }
   function renderLinks(links) {
     return links.map(L => {
-      const terms = (L.terms || [L.term]).map(termB).join(" ");
+      const terms = L.termHtml || (L.terms || [L.term]).map(termB).join(" ");
       const kc = BADGE[L.kind] || "ag-b-metric", kk = A.KIND_KO[L.kind] || L.kind;
+      const conf = L.conf ? ` ${badge(L.conf, CONFB[L.conf])}` : "";
       const jt = L.join ? `<span class="ag-joinbadge">JOIN</span>` : "";
       const via = L.via ? `<div class="ag-lr-via">${L.via}</div>` : "";
       return `<div class="ag-linkwrap"><div class="ag-linkrow">` +
         `<div class="ag-lr-node"><div>${terms}</div><div class="ag-lr-kind">Term</div></div>` +
         `<div class="ag-lr-mid"><span class="ag-lr-role">${L.role}</span><span class="ag-lr-ar">──▶</span></div>` +
-        `<div class="ag-lr-node"><div>${badge(L.asset, kc)}</div><div class="ag-lr-kind">${kk}</div></div>` +
+        `<div class="ag-lr-node"><div>${badge(L.asset, kc)}${conf}</div><div class="ag-lr-kind">${kk}</div></div>` +
         `${jt}</div>${via}</div>`;
     }).join("");
   }
   function renderResult(r) {
     if (r.type === "scalar") return `<div class="ag-result"><div class="ag-rl">결과 · ${r.label}</div><div class="ag-big">${r.val}</div></div>`;
     if (r.type === "nav") return `<div class="ag-result ag-nav"><div class="ag-rl">안내</div><div class="ag-big">${r.val}</div></div>`;
-    if (r.type === "table") return `<div class="ag-result"><div class="ag-rl">결과 · ${r.body.length}건</div><table class="ag-rtable"><thead><tr>${r.head.map(x => `<th>${x}</th>`).join("")}</tr></thead><tbody>${r.body.map(row => `<tr>${row.map(c => `<td>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    if (r.type === "table") {
+      const cell = c => (c && typeof c === "object" && c.mask) ? `<td class="ag-rmask">${c.mask}</td>` : `<td>${c}</td>`;
+      const note = r.note ? `<div class="ag-rnote">${r.note}</div>` : "";
+      return `<div class="ag-result"><div class="ag-rl">결과 · ${r.body.length}건</div><table class="ag-rtable"><thead><tr>${r.head.map(x => `<th>${x}</th>`).join("")}</tr></thead><tbody>${r.body.map(row => `<tr>${row.map(cell).join("")}</tr>`).join("")}</tbody></table>${note}</div>`;
+    }
     if (r.type === "dist") return `<div class="ag-result"><div class="ag-rl">결과 · 분포</div><div class="ag-bars">${r.rows.map(x => `<div class="ag-bar ${x.metric ? "ag-bar-metric" : ""}"><span class="ag-bl">${x.l}</span><span class="ag-bt" style="width:${x.v / x.max * 100}%;min-width:${x.v > 0 ? 6 : 0}px"></span><span class="ag-bv">${x.fixed ? x.v.toFixed(1) : x.v}${x.suf}</span></div>`).join("")}</div></div>`;
     if (r.type === "metrics") return `<div class="ag-result"><div class="ag-rl">결과 · ${r.rows.length}개 지표</div><table class="ag-rtable ag-rtable-kv"><tbody>${r.rows.map(x => `<tr><td class="ag-rk">${x.l}</td><td class="ag-rv">${x.v}</td></tr>`).join("")}</tbody></table></div>`;
     return "";

@@ -109,7 +109,7 @@
 
   /* ===== BOARD: SOURCES ===== */
   function renderSourcesBoard() {
-    const canvas = mapShell("시그널 소스", "소스를 클릭하면 오른쪽 패널에 상세가 열립니다 · Catalog는 내부 구조까지 탐색");
+    const canvas = mapShell("시그널 소스", "semantic layer의 의미가 이미 존재하는 출처들 · 원시 시그널(DB·Code) → 행동 증거(BI) → 정제된 의미(Catalog)로, 바로 쓸 수 있는 정도가 다르다");
     const tiers = h("div", "tiers");
     D.tiers.forEach(tier => {
       const srcs = D.sources.filter(s => s.tier === tier.id);
@@ -145,7 +145,7 @@
 
   /* ===== BOARD: INFO (dependency map) ===== */
   function renderInfoBoard() {
-    const canvas = mapShell("증강 정보", "정보를 클릭하면 어떤 소스에서 합쳐졌는지 연결선이 켜지고, 패널에 상세가 열립니다");
+    const canvas = mapShell("증강 정보", "흩어진 시그널을 합쳐, 어느 소스에도 통째로 없던 정보를 만드는 일 · Description·Link·값 의미·Classification·Domain 다섯 가지");
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     svg.setAttribute("class", "edges"); svg.id = "edges";
     canvas.appendChild(svg);
@@ -239,7 +239,7 @@
     const inner = h("div", "map-inner");
     const head = h("div", "map-head");
     head.appendChild(h("h2", null, "Asset은 어디에 속하는가"));
-    head.appendChild(h("div", "hint", "두 축이 Asset에서 만난다 · 노드를 클릭해 탐색 · Link/Lineage로 의미가 전파"));
+    head.appendChild(h("div", "hint", "정제된 소스의 내부 구조 · 의미 축(Term)과 소유 축(Domain)이 Asset에서 만나고, Link·Lineage를 타고 의미가 전파된다"));
     inner.appendChild(head);
 
     const canvas = h("div", "map-canvas");
@@ -377,7 +377,7 @@
   /* ===== BOARD: DASHBOARD (CH4 적용) ===== */
   function renderDashboardBoard() {
     if (state.dataDrill) { renderDataDrill(); return; }
-    const canvas = mapShell("대시보드 — 여신 건전성 모니터", "카드를 클릭하면 그 숫자가 Term → Asset → 컬럼으로 닿는 계보가 오른쪽에 열립니다");
+    const canvas = mapShell("대시보드 — 여신 건전성 모니터", "레이어가 실제로 쓰이는 자리 · 화면의 모든 숫자가 Term → Asset → 컬럼 계보로 떠받쳐진다");
     canvas.classList.add("ag-canvas");
     AGENT.buildDashboard(canvas, state, nav);
   }
@@ -398,7 +398,7 @@
 
   /* ===== BOARD: CONSOLE (CH4 질의) ===== */
   function renderConsoleBoard() {
-    const canvas = mapShell("질의 콘솔 — 예시 질문", "질문을 클릭하면 자연어가 답이 되기까지의 과정이 오른쪽에 단계별로 펼쳐집니다");
+    const canvas = mapShell("질의 콘솔 — 예시 질문", "NL 에이전트가 레이어를 소비하는 과정 · 자연어 질문이 Term 매칭·값 변환·Link·join을 거쳐 답이 되기까지");
     canvas.classList.add("ag-canvas");
     AGENT.buildConsole(canvas, state, nav);
   }

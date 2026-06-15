@@ -444,6 +444,7 @@
     const g = h("div", "guide");
     D.intro.guide.forEach(it => g.appendChild(h("div", "guide-item", `<span class="gk">${it.k}</span><span class="gv">${it.v}</span>`)));
     pad.appendChild(sec("이 스터디가 다루는 것", g));
+    if (D.intro.prestudy) D.intro.prestudy.forEach(b => pad.appendChild(sec(b.h, b.p)));
     pad.appendChild(sec("탐색", h("div", "p-empty", "왼쪽 맵에서 <b>소스를 클릭</b>하세요. 각 소스가 어떤 시그널을 주는지, 무엇을 만들 수 있는지가 여기에 열립니다.")));
   }
 

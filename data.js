@@ -16,6 +16,13 @@ window.DATA = (function () {
       { k: "시그널 소스", v: "semantic layer가 어느 소스에 어떤 형태로 존재하는가 — 소스를 눌러 탐색" },
       { k: "증강 정보", v: "그 시그널을 조합해 무엇을 만들고, 각 정보가 어떻게 쓰이는가" },
     ],
+    prestudy: [
+      { h: "웨어하우스와 카탈로그", p: "웨어하우스는 데이터(행·값)를, 카탈로그는 그 데이터에 관한 정보(의미·소유·계보·민감도)를 담는다. <code>DLNQ_FLG</code>에 <code>'Y'</code>가 들었다는 건 웨어하우스가 알지만, 그 <code>'Y'</code>가 ‘연체’라는 건 거기 없다 — semantic layer는 그 ‘의미’ 쪽이다. 이 말은 시장에서도 쓰지만 메트릭 레이어(dbt·Cube)·context layer 등 여러 뜻이 섞여 있어, 이 글에서는 ‘의미·맥락’으로 좁혀 쓴다." },
+      { h: "Term · Asset · Link", p: "스터디 전체가 이 셋 위에서 돈다. <b>Term</b>은 비즈니스 개념(‘연체’), <b>Asset</b>은 물리 데이터 객체(<code>DLNQ_FLG</code> 컬럼), <b>Link</b>는 둘의 연결이다." },
+      { h: "용어 출처", p: "catalog·glossary·lineage·classification·domain·NL2SQL은 시장 표준. <b>semantic layer·Asset·Link·grain</b>은 시장 말을 좁혀 쓴 것. <b>시그널 티어·증강·Create/Mirror/Derive·레이어의 경계</b>는 이 글이 만든 말로, 본문 정의가 전부다." },
+      { h: "전제 · 이 글이 아닌 것", p: "SQL 읽기(<code>WHERE·JOIN·SUM</code>·FK)와 LLM 에이전트 개념은 가정한다. 카탈로그·거버넌스 배경은 가정하지 않는다 — 그게 이 글이 채우는 빈칸이다. 제품 튜토리얼도 레이어 품질 평가도 아니며, 에이전트가 레이어를 얼마나 잘 소비하는지를 본다." },
+      { h: "표기", p: "모노스페이스(<code>DLNQ_FLG</code>)는 물리 컬럼, <code>'03'</code>은 코드값, <code>loans ⋈ customers</code>는 조인. 예시는 여신(loans·customers) 한 도메인을 끝까지 쓴다. 01–04가 기초, A·B가 적용편." },
+    ],
   };
 
   /* ---- CH2 sources (top→bottom follows doc body order: raw→refined) ---- */

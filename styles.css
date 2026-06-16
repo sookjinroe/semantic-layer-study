@@ -373,6 +373,7 @@ b, strong { font-weight: 600; color: var(--fg); }
   color: var(--fg-faint); margin-bottom: 10px;
 }
 .p-sec .p-h.accent { color: var(--accent); }
+.p-sec .p-h .concept-tag { text-transform: none; letter-spacing: 0; font-weight: 400; font-size: 9.5px; color: var(--fg-faint); background: var(--bg-sunk); border: 1px solid var(--rule-soft); border-radius: 3px; padding: 1px 6px; margin-left: 8px; vertical-align: middle; }
 
 /* signal list */
 .sig-list { display: flex; flex-direction: column; gap: 8px; }

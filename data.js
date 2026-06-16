@@ -9,17 +9,17 @@ window.DATA = (function () {
     kicker: "Semantic Layer · 스터디",
     title: "데이터에 의미를 채워 AI가 쓰게 만들기",
     paras: [
-      "컬럼명과 타입만으로는 그 컬럼이 무엇인지 알 수 없다. <code>TAX_EXMP_FLG CHAR(1)</code>을 받아도, 값이 무엇을 뜻하는지·어떤 업무에 쓰이는지·누가 책임지는지는 컬럼 밖에 있다. 이 정보를 <b>semantic layer</b>라 부른다.",
-      "semantic layer는 DB 안에 없다. 코드·BI·카탈로그에 흩어져 있고, 상당 부분은 아직 어디에도 없다. AI 에이전트가 데이터를 활용하려면 이 흩어진 의미를 모아 채워야 한다.",
+      "컬럼명과 타입만으로는 그 컬럼이 무엇인지 알 수 없다. <code>TAX_EXMP_FLG CHAR(1)</code>을 받아도 값이 무엇을 뜻하는지·어떤 업무에 쓰이는지·누가 책임지는지는 컬럼 밖에 있다. 그 ‘컬럼 밖의 의미’는 DB 안에 없고 코드·BI·카탈로그에 흩어져 있으며, 상당 부분은 아직 어디에도 없다. 이 스터디는 그 흩어진 의미를 모아 채워 AI 에이전트가 데이터를 쓰게 만드는 일을 다룬다.",
     ],
-    guide: [
-      { k: "시그널 소스", v: "semantic layer가 어느 소스에 어떤 형태로 존재하는가 — 소스를 눌러 탐색" },
-      { k: "증강 정보", v: "그 시그널을 조합해 무엇을 만들고, 각 정보가 어떻게 쓰이는가" },
-    ],
-    prestudy: [
-      { h: "웨어하우스와 카탈로그", p: "<b>웨어하우스</b> — 데이터(행·값).<br><b>카탈로그</b> — 그 데이터에 관한 정보(의미·소유·계보·민감도).<br><br><code>DLNQ_FLG</code>의 <code>'Y'</code>는 웨어하우스에 있지만, 그 <code>'Y'</code>가 ‘연체’라는 뜻은 카탈로그에 있다. semantic layer는 그 ‘의미’ 층을 가리킨다.<br><br>이 말은 시장에서 메트릭 레이어(dbt·Cube)·context layer 등 여러 뜻으로도 쓰이지만, 이 글에선 ‘의미·맥락’으로 좁혀 쓴다." },
-      { h: "Term · Asset · Link", p: "스터디 전체가 이 셋 위에서 돈다. <b>Term</b>은 비즈니스 개념(‘연체’), <b>Asset</b>은 물리 데이터 객체(<code>DLNQ_FLG</code> 컬럼), <b>Link</b>는 둘의 연결이다." },
-      { h: "용어 출처", p: "catalog·glossary·lineage·classification·domain·NL2SQL은 시장 표준. <b>semantic layer·Asset·Link·grain</b>은 시장 말을 좁혀 쓴 것. <b>시그널 티어·증강·Create/Mirror/Derive·레이어의 경계</b>는 이 글이 만든 말로, 본문 정의가 전부다." },
+    concepts: [
+      { term: "semantic layer", tag: "시장 용어 · 의미를 좁혀 씀",
+        body: "이름·타입 너머에 있는 그 ‘의미’ 층 — 값이 뜻하는 바, 업무 용도, 소유·책임, 민감도를 가리킨다. 시장에선 메트릭 레이어(dbt·Cube)·context layer 등 여러 뜻으로도 쓰이지만, 이 글에선 ‘의미·맥락’으로 좁혀 쓴다." },
+      { term: "데이터웨어하우스 ↔ 카탈로그", tag: "둘 다 시장 표준",
+        body: "<b>웨어하우스</b>는 데이터(행·값), <b>카탈로그</b>는 그 데이터에 관한 정보(의미·소유·계보·민감도)다. <code>DLNQ_FLG</code>의 <code>'Y'</code>는 웨어하우스에 있지만, 그 <code>'Y'</code>가 ‘연체’라는 뜻은 카탈로그에 있다. semantic layer가 가리키는 건 이 카탈로그 쪽 ‘의미’다." },
+      { term: "signal", tag: "이 글의 개념",
+        body: "의미를 추론할 단서. semantic layer는 한곳에 정리돼 있지 않고, 이런 단서 조각으로 여러 소스에 흩어져 있다 — 컬럼 이름 토큰, 코드의 Enum, BI 사용 패턴처럼." },
+      { term: "signal source", tag: "이 글의 프레임",
+        body: "signal이 사는 출처 — DB·Code·BI·Catalog. 여기서 Catalog는 위에서 정의한 그 카탈로그이자, 동시에 이 출처들 중 하나다. 소스마다 의미가 어떤 형태로, 얼마나 바로 쓸 수 있게 들어 있는지가 다르다." },
     ],
   };
 

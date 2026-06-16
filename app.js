@@ -439,12 +439,9 @@
     pad.appendChild(h("div", "p-kicker", D.intro.kicker));
     pad.appendChild(h("h1", "p-title", D.intro.title));
     const lead = h("div"); D.intro.paras.forEach(p => lead.appendChild(h("p", "p-lead", p)));
-    lead.querySelectorAll(".p-lead").forEach((p, i) => { if (i > 0) p.style.color = "var(--fg-muted)"; });
     pad.appendChild(lead);
-    const g = h("div", "guide");
-    D.intro.guide.forEach(it => g.appendChild(h("div", "guide-item", `<span class="gk">${it.k}</span><span class="gv">${it.v}</span>`)));
-    pad.appendChild(sec("이 스터디가 다루는 것", g));
-    if (D.intro.prestudy) D.intro.prestudy.forEach(b => pad.appendChild(sec(b.h, b.p)));
+    D.intro.concepts.forEach(c =>
+      pad.appendChild(sec(`${c.term}<span class="concept-tag">${c.tag}</span>`, c.body)));
   }
 
   function panelSource(pad, id) {

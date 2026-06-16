@@ -499,12 +499,12 @@
 
   function panelCatIntro(pad) {
     pad.appendChild(h("div", "p-kicker", `<span class="swatch" style="background:var(--c-catalog)"></span>Catalog · 내부 구조`));
-    pad.appendChild(h("h1", "p-title", "두 질문이 한 Asset에 걸린다"));
-    pad.appendChild(h("p", "p-lead", "같은 컬럼에 서로 다른 두 질문이 동시에 붙는다. “무슨 뜻인가”와 “누구 것인가”다. 앞은 <b>의미 축</b>(Glossary·Category·Term)이, 뒤는 <b>소유 축</b>(Domain·Subdomain)이 답한다. 둘은 같은 <b>Asset</b>에서 만난다."));
-    pad.appendChild(sec("연결의 카디널리티", h("div", "sig-list", `
-      <div class="sig-item"><span class="si-k">Link · N:N</span><span class="si-v">Term ↔ Asset — 하나의 Term이 여러 컬럼에, 하나의 컬럼이 여러 Term에 연결된다</span></div>
-      <div class="sig-item"><span class="si-k">belongs · 1:1</span><span class="si-v">Subdomain → Asset — 한 Asset은 하나의 Domain에만 속한다</span></div>`), true));
-    pad.appendChild(sec("탐색", h("div", "p-empty", "왼쪽 맵에서 <b>노드를 클릭</b>하세요. 특히 <b>Link</b>·<b>Lineage</b>를 누르면 분류가 전파되는 두 단계(확정 vs 후보)를 볼 수 있습니다.")));
+    pad.appendChild(h("h1", "p-title", "카탈로그는 컬럼에 어떤 정보를 붙이나"));
+    pad.appendChild(h("p", "p-lead", "카탈로그에는 데이터(행·값)가 아니라 데이터에 관한 정보가 들어 있다. 그 정보는 물리 데이터 객체 — 테이블과 컬럼, 곧 <b>Asset</b> — 를 중심으로 정리된다. 개발자가 낯선 컬럼을 만나면 대개 두 가지를 묻는다: <b>무슨 뜻인가</b>, <b>누구 것인가</b>. 카탈로그의 구조는 이 두 질문에 답하도록 짜여 있다."));
+    pad.appendChild(sec("두 질문, 두 축", h("div", "sig-list", `
+      <div class="sig-item"><span class="si-k">무슨 뜻인가 · 의미 축</span><span class="si-v"><b>Glossary</b>에 정의된 <b>Term</b>이 답한다 — Term은 하나의 비즈니스 개념(예: ‘연체’). 가까운 Term끼리 <b>Category</b>로 묶는다.</span></div>
+      <div class="sig-item"><span class="si-k">누구 것인가 · 소유 축</span><span class="si-v">소유·책임 조직 <b>Domain</b>(과 하위 <b>Subdomain</b>)이 답한다.</span></div>`), true));
+    pad.appendChild(sec("연결과 전파", h("div", "p-b", "두 축은 같은 <b>Asset</b>에서 만난다. <b>Link</b>가 Term과 컬럼을 잇고, <b>Lineage</b>는 컬럼 사이 흐름을 따라 이 정보가 어떻게 전파되는지 보여준다.")));
   }
 
   function panelCat(pad, id) {

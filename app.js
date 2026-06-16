@@ -480,6 +480,16 @@
     pad.appendChild(sec("채우는 시점 · 범위", mg));
 
     pad.appendChild(sec("성격", h("p", null, i.role)));
+    if (i.propagation) {
+      const mini = h("div", "prop-mini");
+      i.propagation.steps.forEach((st, idx) => {
+        const stepEl = h("div", "prop-step " + st.kind);
+        stepEl.innerHTML = `<div class="ps-node">${st.node}</div><div class="ps-note">${st.note}</div><span class="ps-tag">${st.tag}</span>`;
+        mini.appendChild(stepEl);
+        if (idx < i.propagation.steps.length - 1) mini.appendChild(h("div", "prop-conn"));
+      });
+      pad.appendChild(sec(i.propagation.title, mini, true));
+    }
     pad.appendChild(sec("쓰임 (어떻게 활용되나)", h("p", null, i.usage)));
 
     const br = h("div", "breaks");
@@ -581,19 +591,6 @@
     };
 
     if (n.flow) exampleSection();
-
-    // propagation mini for Link / Lineage (분류 전파는 두 edge 노드의 개념 — Asset에선 중복이라 제외)
-    if (id === "link" || id === "lineage") {
-      const mini = h("div", "prop-mini");
-      const steps = D.catalog.propagation.steps;
-      steps.forEach((st, idx) => {
-        const stepEl = h("div", "prop-step " + st.kind);
-        stepEl.innerHTML = `<div class="ps-node">${st.node}</div><div class="ps-note">${st.note}</div><span class="ps-tag">${st.tag}</span>`;
-        mini.appendChild(stepEl);
-        if (idx < steps.length - 1) mini.appendChild(h("div", "prop-conn"));
-      });
-      pad.appendChild(sec(D.catalog.propagation.title, mini, true));
-    }
 
     if (!n.flow) exampleSection();
 

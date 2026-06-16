@@ -145,6 +145,14 @@ window.DATA = (function () {
       role: "모든 컬럼이 아니라 민감한 컬럼에만. Link·Lineage를 따라 전파되는 구조라 관련 컬럼에 미리 번져 있어야 한다.",
       usage: "실행 단계에서 쓰인다. 결과에 CUST_EMAIL이 포함되면 PII 분류를 보고 마스킹 후 반환, 권한이 없으면 컬럼을 제외한다.",
       missing: "개인정보가 그대로 나가 규제를 위반한다. (PII 외에도 기밀·신용정보·PHI·PCI·영업비밀 등 여러 축)",
+      propagation: {
+        title: "분류 전파 — 두 단계",
+        steps: [
+          { node: "“이메일” Term", tag: "PII", note: "분류를 가진 Term", kind: "term" },
+          { node: "CUST_EMAIL", tag: "PII 확정", note: "직접 Link된 Asset · 즉시 확정", kind: "confirmed" },
+          { node: "EMAIL_BACKUP", tag: "PII 후보", note: "Lineage 파생 · 검토 대상", kind: "candidate" },
+        ],
+      },
     },
     {
       id: "domain", name: "Domain", q: "누구 것인가",
@@ -241,17 +249,16 @@ window.DATA = (function () {
           ["일괄 import", "외부 매핑을 가져오기"],
         ],
         example: "“세금면제” ↔ TAX_EXMP_FLG (AI 생성, 신뢰도 High → 자동 확정). AI가 만든 연결이라도 신뢰도가 Low면 사람 검토 큐로 간다.",
-        inAction: { k: "전파 예", v: "“이메일” Term에 PII가 붙으면 Link로 연결된 CUST_EMAIL에 PII가 자동으로 번지고, lineage를 따라 그걸 복사한 EMAIL_BACKUP까지 후보로 올라간다." },
-        relation: { text: "Term의 한쪽 끝과 Asset의 다른 쪽 끝을 잡는다. 이 연결을 타고 의미와 분류가 전파된다.", to: ["term", "asset"] },
+        relation: { text: "Term의 한쪽 끝과 Asset의 다른 쪽 끝을 잡는다. 이 연결을 타고 Term의 의미가 Asset에 닿는다.", to: ["term", "asset"] },
       },
       lineage: {
         name: "Lineage", axis: "edge", essence: "Asset 사이의 흐름 기록",
-        lead: "Asset에서 Asset으로 데이터가 어떻게 흐르는지 기록한다. 한 값에 대해 두 가지를 답한다 — <b>어디서 왔나</b>(상류 출처)와 <b>바꾸면 어디가 영향받나</b>(하류 영향).",
+        lead: "Asset에서 Asset으로 데이터가 어떻게 흐르는지 기록한다. 같은 흐름을 두 방향으로 읽는다 — <b>어디서 왔나</b>(상류·출처)와 <b>바꾸면 어디가 영향받나</b>(하류·영향).",
         facts: [
           ["상류 — 출처 추적", "값이 이상하거나 정의가 헷갈릴 때, 원천 컬럼·변환 로직까지 거슬러 올라가 근거를 찾는다."],
-          ["하류 — 영향 분석", "컬럼을 바꾸거나 폐기하기 전에, 그 값을 쓰는 파생 테이블·지표·대시보드를 미리 본다. 분류(PII 등)도 이 하류를 따라 번진다 — 아래 도식."],
+          ["하류 — 영향 분석", "컬럼을 바꾸거나 폐기하기 전에, 그 값을 쓰는 파생 테이블·지표·대시보드를 미리 본다."],
         ],
-        example: "상류로 읽으면 대시보드 숫자의 근거가 원천 컬럼까지 이어지고, 하류로 읽으면 원천에 붙은 PII가 파생 컬럼·대시보드로 번진다.",
+        example: "같은 사슬을 방향만 바꿔 읽는다. 위로 읽으면 ‘면세 현황’ 대시보드 숫자가 어느 원천 컬럼에서 왔는지 거슬러 올라가고, 아래로 읽으면 TAX_EXMP_FLG가 어디까지 흘러가 영향을 주는지 내려간다.",
         flow: [
           { node: "TAX_EXMP_FLG", role: "원천 컬럼", kind: "lf-col" },
           { node: "세금계산 모듈", role: "변환 로직", kind: "lf-logic" },
@@ -259,19 +266,11 @@ window.DATA = (function () {
           { node: "‘면세 현황’ 대시보드", role: "화면", kind: "lf-dash" },
         ],
         inAction: { k: "영향 분석 예", v: "TAX_EXMP_FLG의 정의를 바꾸려 하면, Lineage를 따라 영향받는 TAX_SUMMARY_DT와 ‘면세 현황’ 대시보드가 목록으로 뜬다 — 바꾸기 전에 무엇이 깨질지 안다." },
-        relation: { text: "Asset과 Asset을 잇는다. 직접 Link된 Asset은 분류가 즉시 확정되고, Lineage로 파생된 Asset은 후보로 검토된다.", to: ["asset"] },
+        relation: { text: "Asset과 Asset을 잇는다. 한 컬럼의 값이 다른 컬럼·지표·화면으로 흘러간 경로를 기록한다.", to: ["asset"] },
       },
     },
     meaningAxis: ["glossary", "category", "term"],
     owningAxis: ["domain", "subdomain"],
-    propagation: {
-      title: "분류 전파 — 두 단계",
-      steps: [
-        { node: "“이메일” Term", tag: "PII", note: "분류를 가진 Term", kind: "term" },
-        { node: "CUST_EMAIL", tag: "PII 확정", note: "직접 Link된 Asset · 즉시 확정", kind: "confirmed" },
-        { node: "EMAIL_BACKUP", tag: "PII 후보", note: "Lineage 파생 · 검토 대상", kind: "candidate" },
-      ],
-    },
   };
 
   return { intro, tiers, sources, info, infoIntro, catalog };

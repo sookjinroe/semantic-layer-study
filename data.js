@@ -25,16 +25,16 @@ window.DATA = (function () {
 
   /* ---- CH2 sources (top→bottom follows doc body order: raw→refined) ---- */
   const tiers = [
-    { id: "raw", name: "원시 시그널", note: "구조와 구현 — 가장 많은 해석이 필요하다", trust: "낮음", load: "높음" },
-    { id: "behavior", name: "행동 증거", note: "사용 패턴 — 의미로 바꾸려면 해석을 거쳐야 한다", trust: "중간", load: "중간" },
-    { id: "refined", name: "정제된 의미", note: "사람이 검토해 둔 정의 — 읽으면 바로 쓸 수 있다", trust: "높음", load: "낮음" },
+    { id: "raw", name: "원시 시그널", note: "구조와 구현 — 가장 많은 해석이 필요하다" },
+    { id: "behavior", name: "행동 증거", note: "사용 패턴 — 의미로 바꾸려면 해석을 거쳐야 한다" },
+    { id: "refined", name: "정제된 의미", note: "사람이 검토해 둔 정의 — 읽으면 바로 쓸 수 있다" },
   ];
 
   const sources = [
     {
       id: "catalog", name: "Catalog", tier: "refined", color: "catalog",
       essence: "사람이 검토해 둔 정의를 제공",
-      trust: "높음", load: "낮음", drillIn: true,
+      origin: "관리", load: "낮음", drillIn: true,
       lead: "Catalog는 시그널 중 정제된 의미를 담는 소스다. 다른 소스가 해석을 거쳐야 하는 원시 시그널·행동 증거인 반면, Catalog는 사람이 이미 검토해 둔 정의를 제공한다.",
       signals: [
         ["Glossary · Term", "비즈니스 용어의 공식 정의와 개념 단위"],
@@ -53,7 +53,7 @@ window.DATA = (function () {
     {
       id: "bi", name: "BI", tier: "behavior", color: "bi",
       essence: "데이터가 실제로 어떻게 쓰이는지",
-      trust: "중간", load: "중간",
+      origin: "부산물", load: "중간",
       lead: "BI 도구에서는 데이터가 실제로 어떻게 쓰이는지가 시그널이 된다. 어떤 컬럼이 어느 대시보드에서 필터·집계에 쓰이는지, 어떤 부서가 접근하는지, 사용 빈도가 어떤지.",
       signals: [
         ["사용 빈도", "컬럼의 중요도를 시사"],
@@ -71,7 +71,7 @@ window.DATA = (function () {
     {
       id: "db", name: "DB", tier: "raw", color: "db",
       essence: "스키마의 형태와 관계",
-      trust: "낮음", load: "높음",
+      origin: "부산물", load: "높음",
       lead: "스키마는 별도 연동 없이 조회할 수 있다. 시그널이 되는 건 그 안의 패턴이다.",
       signals: [
         ["이름 토큰", "TAX_EXMP_FLG → 세금·면제·플래그"],
@@ -89,7 +89,7 @@ window.DATA = (function () {
     {
       id: "code", name: "Code", tier: "raw", color: "code",
       essence: "데이터를 다루는 로직 속 의미",
-      trust: "낮음", load: "높음",
+      origin: "부산물", load: "높음",
       lead: "소스코드는 데이터를 다루는 로직을 담고 있고, 그 안에 컬럼의 의미가 들어 있다. 카탈로그나 DB에서는 얻을 수 없는 종류의 시그널이다. 가장 직접적인 건 Enum이다.",
       code: 'enum TaxExemption {\n    Y("면세"), N("과세"),\n    P("부분면세"), X("해당없음")\n}',
       signals: [

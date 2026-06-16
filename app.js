@@ -118,8 +118,7 @@
       row.style.setProperty("--tier-accent", tier.id === "raw" ? "var(--c-db)" : accent);
       const label = h("div", "tier-label", `
         <div class="tl-name">${tier.name}</div>
-        <div class="tl-note">${tier.note}</div>
-        <div class="tl-meta"><span>신뢰도 <b>${tier.trust}</b></span><span>해석부담 <b>${tier.load}</b></span></div>`);
+        <div class="tl-note">${tier.note}</div>`);
       row.appendChild(label);
       const cards = h("div", "tier-sources");
       srcs.forEach(s => cards.appendChild(sourceCard(s)));
@@ -138,6 +137,7 @@
       <div class="sc-ess">${s.essence}</div>
       <div class="sc-foot">
         <span class="sc-sig">시그널 ${s.signals.length}종</span>
+        <span class="sc-tags"><span class="sc-tag">${s.origin}</span><span class="sc-tag">해석부담 ${s.load}</span></span>
       </div>`;
     card.addEventListener("click", () => { state.sel = { type: "source", id: s.id }; render(); });
     return card;

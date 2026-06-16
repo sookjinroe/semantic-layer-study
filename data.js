@@ -231,7 +231,7 @@ window.DATA = (function () {
         relation: { text: "위로는 Term이 Link로 의미를 주고, 옆으로는 Domain이 소유를 주고, 자기들끼리는 lineage로 이어진다.", chain: ["TAX_EXMP_FLG", "“세금면제”(의미) + Finance(소유) + lineage(흐름)"], to: ["term", "domain", "link", "lineage"] },
       },
       link: {
-        name: "Link", axis: "edge", essence: "Term과 Asset을 잇는 연결 · 자체 속성을 가진 객체",
+        name: "Link", axis: "edge", card: "N:N", essence: "Term과 Asset을 잇는 연결 · 자체 속성을 가진 객체",
         lead: "단순 표시가 아니라 자체 속성을 가진 객체다.",
         facts: [["자체 속성", "언제 연결됐는지, 신뢰도(High/Med/Low), 누가 만들었는지(수동·룰·AI)."]],
         methods: [

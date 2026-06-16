@@ -280,7 +280,7 @@
     const node = h("button", "cat-node");
     node.dataset.id = id;
     if (state.sel.type === "cat" && state.sel.id === id) node.classList.add("selected");
-    node.innerHTML = `<div class="cn-name">${n.name}</div><div class="cn-ess">${n.essence}</div>`;
+    node.innerHTML = `<div class="cn-name">${n.name}</div>${n.card ? `<div class="cn-card">${n.card}</div>` : ""}<div class="cn-ess">${n.essence}</div>`;
     node.addEventListener("click", () => { state.sel = { type: "cat", id }; render(); });
     return node;
   }

@@ -109,7 +109,7 @@
 
   /* ===== BOARD: SOURCES ===== */
   function renderSourcesBoard() {
-    const canvas = mapShell("시그널 소스", "semantic layer의 의미가 이미 존재하는 출처들 · 원시 시그널(DB·Code) → 행동 증거(BI) → 정제된 의미(Catalog)로, 바로 쓸 수 있는 정도가 다르다");
+    const canvas = mapShell("시그널 소스", "컬럼 의미의 단서가 어디에, 어떤 형태로 존재하는가");
     const tiers = h("div", "tiers");
     D.tiers.forEach(tier => {
       const srcs = D.sources.filter(s => s.tier === tier.id);

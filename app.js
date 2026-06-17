@@ -145,7 +145,7 @@
 
   /* ===== BOARD: INFO (dependency map) ===== */
   function renderInfoBoard() {
-    const canvas = mapShell("증강 정보", "흩어진 시그널을 합쳐, 어느 소스에도 통째로 없던 정보를 만드는 일 · Description·Link·값 의미·Classification·Domain 다섯 가지");
+    const canvas = mapShell("증강 정보", "흩어진 시그널을 합쳐, 어느 소스에도 통째로 없던 정보를 만드는 일 · Description·Link·값 의미·값 형식·Classification·Domain 여섯 가지");
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     svg.setAttribute("class", "edges"); svg.id = "edges";
     canvas.appendChild(svg);
@@ -165,7 +165,7 @@
     });
     // right: info
     const right = h("div", "dep-col");
-    right.appendChild(h("div", "dep-col-head", "증강 정보 — 5"));
+    right.appendChild(h("div", "dep-col-head", "증강 정보 — 6"));
     D.info.forEach(i => {
       const node = h("button", "dep-node info" + (i.exception ? " exception" : ""));
       node.dataset.id = i.id; node.dataset.kind = "info";

@@ -114,7 +114,7 @@ window.DATA = (function () {
       id: "description", name: "컬럼 Description", q: "무엇인가", foundation: true,
       from: ["db", "code", "catalog"],
       when: "미리", scope: "전체", exception: false,
-      make: "DB 형태 + Code 의도 + Catalog 맥락을 합쳐 만든다.",
+      make: "DB 형태 + 데이터 프로파일(값공간·형식·카디널리티) + Code 의도를 합치고, 있으면 Catalog 맥락으로 보강한다.",
       role: "다른 정보가 이 위에 쌓이는 토대다. Link도 Description을 Term과 비교해 만들고, Classification 판단도 컬럼이 무엇인지 알아야 시작된다.",
       usage: "NL2SQL 에이전트가 질문에 해당하는 컬럼을 고를 때 읽는다. \"세금 면제된 건\"에서 TAX_EXMP_FLG가 그 개념임을 판단하는 근거.",
       missing: "어떤 컬럼이 질문에 해당하는지 못 찾아 쿼리가 틀리거나 만들어지지 않는다. Code가 빠지면 \"세금 관련 단일 코드\" 수준에 머문다.",
@@ -130,12 +130,21 @@ window.DATA = (function () {
     },
     {
       id: "value", name: "값 의미", q: "코드값이 각각 무엇인가", exception: true,
-      from: ["code"],
+      from: ["code", "db"],
       when: "런타임", scope: "전체",
-      make: "Code의 Enum을 읽어 만든다.",
-      role: "다섯 중 유일하게 미리 채우지 않는다. 전체 코드베이스 파싱은 비싸고, 실제로 해석이 필요한 컬럼은 일부라, 필요한 순간 해당 컬럼만 처리한다.",
+      make: "코드의 매핑(enum·switch, 또는 참조테이블)에서 값→라벨을 읽되, 그게 이 컬럼의 것인지 ORM 필드명으로 잇는다. 값집합만 겹치면 다른 코드 그룹과 오귀속되므로, 매핑과 연결이 한 조합이다.",
+      role: "여섯 중 유일하게 미리 채우지 않는다. 전체 코드베이스 파싱은 비싸고, 실제로 해석이 필요한 컬럼은 일부라, 필요한 순간 해당 컬럼만 처리한다.",
       usage: "NL2SQL 에이전트가 조건절을 만들 때. \"면세된 건\"을 쿼리하려면 Y가 면세라는 걸 알아야 WHERE TAX_EXMP_FLG = 'Y'를 생성할 수 있다.",
       missing: "Y·N·P·X 중 무엇이 면세인지 모른 채 추측해 틀린 조건을 쓰거나, 해석하지 못해 쿼리를 포기한다.",
+    },
+    {
+      id: "format", name: "값 형식", q: "값이 어떤 형식인가", exception: true,
+      from: ["db", "code"],
+      when: "미리", scope: "일부",
+      make: "데이터 프로파일에서 값 형식을 추론하고(YYYYMM·이메일 등), Code의 검증(@Size·정규식)으로 확인한다. 값 의미·분류와 같은 결의 추출 슬롯이다.",
+      role: "코드값 의미·분류와 함께 추출되는 슬롯. 형식이 까다로운 컬럼에만 의미가 있다.",
+      usage: "NL2SQL 에이전트가 조건절을 만들 때. 날짜 컬럼이 YYYYMM인지 YYYY-MM-DD인지에 따라 WHERE 비교식이 달라진다.",
+      missing: "형식을 잘못 가정해 날짜·코드 비교가 빗나간다 — YYYYMM 컬럼에 YYYY-MM-DD로 필터를 걸면 0건이 나온다.",
     },
     {
       id: "classification", name: "Classification", q: "어떤 민감도인가", exception: true,
@@ -172,7 +181,7 @@ window.DATA = (function () {
       "DB는 <code>TAX_EXMP_FLG·CHAR(1)</code>까지, Code는 <code>Y=면세</code>까지 안다. 둘을 합치면 \"대출 건의 세금 면제 상태 코드, Y=면세·N=과세·P=부분면세·X=해당없음\"이 된다. 어느 소스에도 통째로 들어 있지 않던 정보다.",
       "증강은 흩어진 시그널을 합쳐 이런 정보를 만드는 일이다. 컬럼을 곧장 Term에 매칭하기보다, 먼저 <b>Description</b>을 만들고 그 의미를 Term과 비교하는 간접 방식이 정확도가 높다 — 의미를 한 번 만들어두면 다른 정보의 토대가 되기 때문이다.",
     ],
-    matrixNote: "다섯 중 넷은 미리 채운다. <b>값 의미</b>만 런타임에, <b>Classification</b>만 일부 컬럼이 대상 — 둘이 예외다.",
+    matrixNote: "여섯 중 다섯은 미리 채운다 — <b>값 의미</b>만 런타임이다. 전체가 아니라 일부 컬럼만 대상인 건 <b>값 형식</b>과 <b>Classification</b> 둘이다.",
   };
 
   /* ---- Catalog structure (CH2 board: "Asset은 어디에 속하는가") ----

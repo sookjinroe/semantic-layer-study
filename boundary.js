@@ -40,7 +40,7 @@ window.BOUNDARY = (function () {
     pad.appendChild(h("div", "p-kicker", `<span class="swatch" style="background:var(--accent)"></span>${INTRO.kicker}`));
     pad.appendChild(h("h1", "p-title", INTRO.title));
     pad.appendChild(h("p", "p-lead", INTRO.lead));
-    pad.appendChild(sec("네 가지 조건", h("div", "p-b", INTRO.note)));
+    pad.appendChild(sec("여섯 가지 조건", h("div", "p-b", INTRO.note)));
   }
 
   /* -------------------- PANEL: condition -------------------- */

@@ -229,7 +229,7 @@
   /* ===== BOARD: BOUNDARY (CH3.5 레이어의 경계) ===== */
   function renderBoundaryBoard() {
     const canvas = mapShell("이 레이어를 쓰는 에이전트의 조건",
-      "신호에서 연결로 가는 길의 네 조건 · 각 조건은 신호의 성질에서 따라온다 · 조건을 클릭");
+      "신호에서 연결로 가는 길의 여섯 조건 · 각 조건은 신호의 성질에서 따라온다 · 조건을 클릭");
     canvas.classList.add("ag-canvas");
     BOUNDARY.build(canvas, state, nav);
   }

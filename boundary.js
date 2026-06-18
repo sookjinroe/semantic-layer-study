@@ -15,6 +15,17 @@ window.BOUNDARY = (function () {
     else s.appendChild(bodyNode);
     return s;
   };
+  const exBlock = (ex) => {
+    const b = h("div", "ex-block");
+    b.appendChild(h("div", "ex-head", ex.head));
+    ex.rows.forEach(([k, v]) => {
+      const r = h("div", "ex-row");
+      r.appendChild(h("span", "ex-k", k));
+      r.appendChild(h("span", "ex-v", v));
+      b.appendChild(r);
+    });
+    return b;
+  };
 
   /* -------------------- BOARD: signal → conditions → connection -------------------- */
   function build(canvas, state, nav) {
@@ -49,8 +60,17 @@ window.BOUNDARY = (function () {
     if (!c) return panelIntro(pad);
     pad.appendChild(h("div", "p-kicker", `<span class="swatch" style="background:var(--accent)"></span>조건 ${c.n}`));
     pad.appendChild(h("h1", "p-title", c.title));
-    pad.appendChild(sec("신호의 성질", h("div", "p-b", c.signal)));
-    pad.appendChild(sec("따라오는 요구", h("div", "p-b", c.requirement), true));
+    pad.appendChild(h("div", "cond-lead", c.gist));
+
+    const sBody = h("div");
+    sBody.appendChild(h("div", "p-b", c.signal));
+    if (c.example) sBody.appendChild(exBlock(c.example));
+    pad.appendChild(sec("신호의 성질", sBody));
+
+    const rBody = h("div");
+    rBody.appendChild(h("div", "p-b", c.requirement));
+    if (c.failure) rBody.appendChild(h("div", "fail-note", c.failure));
+    pad.appendChild(sec("따라오는 요구", rBody, true));
   }
 
   return { build, panelIntro, panelItem };

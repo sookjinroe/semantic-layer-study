@@ -290,6 +290,16 @@ b, strong { font-weight: 600; color: var(--fg); }
 .cond-node .cn-body { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .cond-node .cn-title { font-weight: 600; font-size: 14px; color: var(--fg); }
 .cond-node .cn-gist { font-size: 12.5px; color: var(--fg-muted); line-height: 1.4; }
+
+/* CH4 — structured condition panel */
+.cond-lead { font-size: 15px; line-height: 1.5; color: var(--fg); font-weight: 500; margin: 2px 0 20px; padding-left: 12px; border-left: 2px solid var(--accent); }
+.ex-block { background: var(--bg-sunk); border: 1px solid var(--rule-soft); border-radius: 8px; padding: 10px 13px; margin-top: 13px; }
+.ex-head { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.03em; color: var(--fg-faint); margin-bottom: 8px; }
+.ex-row { display: flex; gap: 12px; padding: 5px 0; border-top: 1px solid var(--rule-soft); }
+.ex-row:first-of-type { border-top: none; padding-top: 0; }
+.ex-row .ex-k { flex: none; width: 88px; font-family: var(--mono); font-size: 11px; color: var(--fg-muted); line-height: 1.5; }
+.ex-row .ex-v { font-size: 12.5px; color: var(--fg); line-height: 1.5; }
+.fail-note { margin-top: 14px; padding: 9px 12px; border-left: 2px solid color-mix(in oklch, var(--accent) 55%, var(--rule)); background: color-mix(in oklch, var(--accent) 5%, transparent); border-radius: 0 6px 6px 0; font-size: 12.5px; line-height: 1.55; color: var(--fg-muted); }
 .bd-card.dim { opacity: 0.32; }
 
 /* boundary lines */

@@ -338,6 +338,7 @@ window.AGENT = (function () {
     const item = A.Q[id];
     pad.appendChild(h("div", "p-kicker", `<span class="swatch" style="background:var(--accent)"></span>질의 콘솔 · 처리 과정`));
     pad.appendChild(h("div", "ag-q-echo", `<span class="ag-qi">❯</span><span>${item.q}</span>`));
+    if (item.think) pad.appendChild(h("div", "ag-think", `<span class="ag-think-l">추론</span><span class="ag-think-t">${item.think}</span>`));
 
     const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let n = 0;

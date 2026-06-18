@@ -137,6 +137,7 @@ window.AGENT_DATA = (function () {
   const Q = [
     {
       q: "연체율이 어떻게 돼?", grp: "ok", tag: "measured_by · 그레인 정본",
+      think: "‘연체율’은 측정 요청 — 비율을 직접 계산하지 않고, 정의가 박힌 연체율 지표(대출 기준)를 그대로 쓴다.",
       steps: [{ l: "Term 매칭", flow: [{ q: '"연체율"' }, { term: "연체" }, { dim: "+ 측정 의도" }] }],
       links: [{ term: "연체", role: "measured_by", asset: "연체율", kind: "metric", conf: "HIGH" }],
       plan: [["fn", "SELECT"], ["t", " COUNT(DLNQ_FLG="], ["st", "'Y'"], ["t", ") / COUNT(*)\n"], ["kw", "FROM"], ["t", " loans"]],
@@ -144,6 +145,7 @@ window.AGENT_DATA = (function () {
     },
     {
       q: "연체된 대출 목록 보여줘", grp: "ok", tag: "stored_as · 목록은 행",
+      think: "‘목록’은 숫자가 아니라 행 — 연체를 지표가 아니라 원본 컬럼(DLNQ_FLG)으로 걸러 행을 뽑는다.",
       steps: [
         { l: "Term 매칭", flow: [{ q: '"연체된"' }, { term: "연체" }, { dim: '· "목록" → 행이 필요' }] },
         { l: "grain 분기", text: "측정(46.2%)이 아니라 <b>행</b>으로 — 목록 요청이라 stored_as 선택" },
@@ -154,6 +156,7 @@ window.AGENT_DATA = (function () {
     },
     {
       q: "기한이익상실 건 총액", grp: "ok", tag: "값 사전 · 런타임 검색",
+      think: "‘기한이익상실’은 코드값 — 값 사전에서 LOAN_STAT_CD=‘03’을 찾아 거른 뒤 금액을 합한다.",
       steps: [
         { l: "Term 매칭", flow: [{ q: '"기한이익상실" →' }, { term: "대출상태" }, { dim: '의 코드값 · "총액" → 금액 합' }] },
         { l: "값 사전", text: "<b>기한이익상실</b> → LOAN_STAT_CD=<code>'03'</code> <span class='ag-dim'>(코드↔의미 사전)</span>" },
@@ -167,6 +170,7 @@ window.AGENT_DATA = (function () {
     },
     {
       q: "연체 채권 얼마야?", grp: "ok", tag: "두 Term → 한 지표",
+      think: "‘연체’와 ‘대출금액’ 두 개념을 한 번에 — 연체로 거른 위에서 대출금액을 합한 지표로 답한다.",
       steps: [{ l: "Term 매칭", flow: [{ term: "연체" }, { dim: "+" }, { term: "대출금액" }, { dim: "→ 연체 필터 위 금액 합" }] }],
       links: [{ terms: ["연체", "대출금액"], role: "measured_by", asset: "연체채권액", kind: "metric", conf: "HIGH" }],
       plan: [["fn", "SELECT"], ["t", " SUM(LOAN_AMT)\n"], ["kw", "FROM"], ["t", " loans "], ["kw", "WHERE"], ["t", " DLNQ_FLG="], ["st", "'Y'"]],
@@ -174,6 +178,7 @@ window.AGENT_DATA = (function () {
     },
     {
       q: "금액 기준 연체율은?", grp: "ok", tag: "등록된 파생 지표 · 저작",
+      think: "‘금액 기준’ 연체율은 따로 정의돼 있다 — 연체채권액÷총여신잔액을 식으로 박아둔 등록 지표를 쓴다.",
       steps: [
         { l: "Term 매칭", text: '"금액 기준 연체율" → 등록된 파생 지표' },
         { l: "메트릭", text: "두 지표를 나눈 식이 <b>메트릭 Asset</b>으로 등록돼 있어 식을 안 지어냄" },
@@ -184,6 +189,7 @@ window.AGENT_DATA = (function () {
     },
     {
       q: "지역별 연체율", grp: "ok", tag: "exposed_as · join 차원",
+      think: "‘지역별’은 쪼개 보기 — 지역은 다른 표(customers)에 있어 join으로 끌어와 축으로 삼고, 그 위에서 연체율을 잰다.",
       steps: [
         { l: "Term 매칭", flow: [{ term: "지역" }, { dim: "축" }, { term: "연체" }, { dim: "값" }] },
         { l: "join", text: "<span class='ag-join'>JOIN</span> 지역은 customers에 있음 → loans ⋈ customers <span class='ag-dim'>(CUST_ID FK)</span>" },
@@ -197,6 +203,7 @@ window.AGENT_DATA = (function () {
     },
     {
       q: "차주 기준 연체율은?", grp: "ok", tag: "그레인 재집계",
+      think: "‘차주 기준’은 단위가 다르다 — 대출 단위 데이터를 고객 단위로 다시 묶어 비율을 낸다. 대출 기준과 값이 달라진다.",
       steps: [
         { l: "Term 매칭", flow: [{ term: "연체" }, { dim: "+ 단위 = 차주(고객)" }] },
         { l: "그레인 재집계", text: "대출 단위를 <b>고객 단위</b>로 다시 묶음 — 연체 보유 고객 ÷ 전체 고객" },
@@ -208,6 +215,7 @@ window.AGENT_DATA = (function () {
     },
     {
       q: "여신 건전성 요약", grp: "ok", tag: "다중 Link 조립",
+      think: "한 질문에 지표가 여럿 — 잔액·연체율·연체채권액 등 여러 Link를 한 번에 조립해 요약을 만든다.",
       steps: [
         { l: "Term 매칭", flow: [{ q: '"요약" → 핵심 Term' }, { term: "대출금액" }, { term: "연체" }, { term: "금리" }] },
         { l: "조립", text: "아래 여러 링크를 동시에 끌어와 한 답으로 — 매칭이 넓을수록 요약이 풍부" },
@@ -223,6 +231,7 @@ window.AGENT_DATA = (function () {
     },
     {
       q: "연체 현황 어디서 봐?", grp: "ok", tag: "shown_in · 안내",
+      think: "계산이 아니라 위치를 묻는다 — 연체가 나오는 화면(대시보드)을 찾아 안내한다.",
       steps: [{ l: "Term 매칭", flow: [{ term: "연체" }, { dim: "→ 위치/탐색 의도" }] }],
       links: [{ term: "연체", role: "shown_in", asset: "여신 건전성 모니터", kind: "dashboard", conf: "HIGH" }],
       plan: [["cm", "// 쿼리 생성 아님 — 기존 BI로 안내"]],
@@ -232,6 +241,7 @@ window.AGENT_DATA = (function () {
     /* ---------- 경계가 드러나는 경로 (04 레이어의 경계 개념의 실연) ---------- */
     {
       q: "고객 등급별로 연체율 쪼개줘", grp: "edge", tag: "Link 없음 → Description 폴백",
+      think: "‘고객 등급’에 맞는 Link가 없다 — Description 유사도로 후보를 찾되 신뢰도를 낮추고 폴백임을 밝힌다.",
       steps: [
         { l: "Term 매칭", text: `<span class="ag-dim">"연체"</span> → <span class="ag-badge ag-b-term">연체</span> <span class="ag-dim">hit · "등급" →</span> <span class="ag-badge ag-b-none">Term 없음</span> <span class="ag-dim">(글로서리 미등록)</span>` },
         { l: "폴백 — Description 추론", text: `확정 Link 없음 → 컬럼 Description 탐색 → <code>CUST_GRD</code> <span class="ag-dim">"고객 신용등급으로 추정. A·B·C 3단계이나 등급 산정 기준·서열 의미 미확인"</span> <span class="ag-badge ag-b-med">MEDIUM</span>` },
@@ -246,6 +256,7 @@ window.AGENT_DATA = (function () {
     },
     {
       q: "건당 평균 대출금액은?", grp: "edge", tag: "파생 Link 즉석 합성",
+      think: "‘건당 평균’ 지표는 등록돼 있지 않다 — 대출금액 합을 건수로 나누는 파생을 즉석에서 만들어 답한다.",
       steps: [
         { l: "Term 매칭", text: `<span class="ag-dim">"평균 대출금액" →</span> <span class="ag-badge ag-b-term">대출금액</span> <span class="ag-dim">+ 평균 의도</span>` },
         { l: "Link 조회", text: `BI에 '평균대출금액' 메트릭은 등록돼 있으나 — asset→Term Link는 <b>적힌 줄 없음</b>` },
@@ -257,6 +268,7 @@ window.AGENT_DATA = (function () {
     },
     {
       q: "연체 고객 명단이랑 이메일 줘", grp: "edge", tag: "Classification · 실행 게이트",
+      think: "이메일은 PII로 분류돼 있다 — 명단은 뽑되 실행 단계에서 이메일을 마스킹해 내보낸다.",
       steps: [
         { l: "Term 매칭", text: `<span class="ag-badge ag-b-term">연체</span> <span class="ag-dim">+</span> <span class="ag-badge ag-b-term">고객</span> <span class="ag-dim">· "명단" → 행 필요 → stored_as</span>` },
         { l: "쿼리 조립", text: `정상 — <span class="ag-dim">여기까지 답은 '맞다'</span>` },
@@ -274,6 +286,7 @@ window.AGENT_DATA = (function () {
     },
     {
       q: "그 연체율 숫자, 어디서 나온 거야?", grp: "edge", tag: "lineage · 출처 추적",
+      think: "값이 아니라 출처를 묻는다 — 그 숫자가 어느 컬럼·식·정의에서 나왔는지 계보를 거슬러 보여준다.",
       steps: [
         { l: "의도 분기", text: `값 요청이 아니라 <b>출처 질문</b> → 쿼리 생성 아님, 계보(lineage) 탐색` },
         { l: "상류 추적", text: `<span class="ag-badge ag-b-term">연체</span>의 지표 <code>연체율</code> ← 식 <code>COUNT(DLNQ_FLG='Y')/COUNT(*)</code> ← 원천 컬럼 <code>loans.DLNQ_FLG</code>` },

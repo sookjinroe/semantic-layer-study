@@ -774,6 +774,9 @@ table.ag-dt td.ag-yes { color: var(--ag-dash); font-weight: 600; }
    ============================================================ */
 .ag-q-echo { font-family: var(--serif); font-size: 17px; color: var(--fg); margin: 4px 0 20px; display: flex; gap: 9px; align-items: flex-start; line-height: 1.4; }
 .ag-q-echo .ag-qi { font-family: var(--mono); color: var(--accent); flex: none; font-size: 15px; }
+.ag-think { display: flex; gap: 10px; align-items: baseline; margin: 0 0 20px; padding: 10px 13px; background: var(--bg-sunk); border: 1px dashed var(--rule); border-radius: var(--radius); }
+.ag-think .ag-think-l { font-family: var(--mono); font-size: 9.5px; color: var(--accent); letter-spacing: 0.06em; flex: none; }
+.ag-think .ag-think-t { font-size: 13px; color: var(--fg); line-height: 1.55; }
 .ag-step { margin-bottom: 16px; }
 .ag-step.ag-rise { opacity: 0; transform: translateY(6px); animation: agRise 0.4s ease forwards; }
 @keyframes agRise { to { opacity: 1; transform: none; } }

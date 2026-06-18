@@ -74,7 +74,6 @@ window.AGENT_DATA = (function () {
 
   const KIND_KO = { metric: "지표", field: "필드", column: "컬럼", dashboard: "대시보드" };
   const ROLE_GLOSS = { measured_by: "Term을 숫자로 집계한 값", exposed_as: "데이터를 쪼개 보는 기준축", stored_as: "원본이 실제로 담긴 컬럼", shown_in: "이 Term이 등장하는 화면" };
-  const ROLE_DO = { measured_by: "정의 박힌 지표로 집계", exposed_as: "이 축으로 쪼갬 (GROUP BY)", stored_as: "원본 컬럼으로 행을 거름", shown_in: "화면 표시에 쓰임" };
   const GRAIN_GLOSS = { "집계 · 대출 단위": "여러 대출을 묶어 숫자 하나", "집계 · 고객 단위": "고객 단위로 다시 묶어 숫자 하나", "차원": "묶음을 나누는 기준", "행": "한 줄이 한 건" };
 
   const LINK = {
@@ -316,7 +315,7 @@ window.AGENT_DATA = (function () {
   return {
     STAT, customers, loans, custOf,
     isY, sum, avg, won, pct, M, statDist, regionDlnq, gradeDlnq, daysDist,
-    COMP, KPI_ORDER, CHART_ORDER, KIND_KO, ROLE_GLOSS, ROLE_DO, GRAIN_GLOSS,
+    COMP, KPI_ORDER, CHART_ORDER, KIND_KO, ROLE_GLOSS, GRAIN_GLOSS,
     LINK, PLAIN, CARD_LINK, LOAN_COLS, CUST_COLS, CATALOG, CONF_GLOSS, Q, Q_GROUPS, bridge, maskEmail,
   };
 })();

@@ -374,12 +374,16 @@ window.AGENT = (function () {
       const kc = BADGE[L.kind] || "ag-b-metric", kk = A.KIND_KO[L.kind] || L.kind;
       const conf = L.conf ? ` ${badge(L.conf, CONFB[L.conf])}` : "";
       const jt = L.join ? `<span class="ag-joinbadge">JOIN</span>` : "";
+      const doTxt = (A.ROLE_DO && A.ROLE_DO[L.role]) || "";
+      const doLine = (doTxt || L.role)
+        ? `<div class="ag-lr-do">${doTxt ? `<span class="ag-lr-dotxt">${doTxt}</span>` : ""}<span class="ag-lr-roletag">${L.role}</span></div>`
+        : "";
       const via = L.via ? `<div class="ag-lr-via">${L.via}</div>` : "";
       return `<div class="ag-linkwrap"><div class="ag-linkrow">` +
         `<div class="ag-lr-node"><div>${terms}</div><div class="ag-lr-kind">Term</div></div>` +
-        `<div class="ag-lr-mid"><span class="ag-lr-role">${L.role}</span><span class="ag-lr-ar">──▶</span></div>` +
+        `<div class="ag-lr-mid"><span class="ag-lr-ar">──▶</span></div>` +
         `<div class="ag-lr-node"><div>${badge(L.asset, kc)}${conf}</div><div class="ag-lr-kind">${kk}</div></div>` +
-        `${jt}</div>${via}</div>`;
+        `${jt}</div>${doLine}${via}</div>`;
     }).join("");
   }
   function renderResult(r) {

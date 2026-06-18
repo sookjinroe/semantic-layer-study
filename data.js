@@ -248,16 +248,18 @@ window.DATA = (function () {
         relation: { text: "위로는 Term이 Link로 의미를 주고, 옆으로는 Domain이 소유를 주고, 자기들끼리는 lineage로 이어진다.", chain: ["TAX_EXMP_FLG", "“세금면제”(의미) + Finance(소유) + lineage(흐름)"], to: ["term", "domain", "link", "lineage"] },
       },
       link: {
-        name: "Link", axis: "edge", card: "N:N", essence: "Term과 Asset을 잇는 연결 · 자체 속성을 가진 객체",
-        lead: "단순 표시가 아니라 자체 속성을 가진 객체다.",
-        facts: [["자체 속성", "언제 연결됐는지, 신뢰도(High/Med/Low), 누가 만들었는지(수동·룰·AI)."]],
-        methods: [
-          ["수동", "사람이 직접 연결"],
-          ["룰", "_id 접미사 → ID 용어"],
-          ["AI", "컬럼 맥락을 분석해 추천"],
-          ["일괄 import", "외부 매핑을 가져오기"],
+        name: "Link", axis: "edge", card: "N:N", essence: "Term ↔ Asset 연결 · 연결마다 역할(role)을 가진다",
+        lead: "Link는 Term과 Asset을 잇는 연결이고, 그 연결엔 <b>역할(role)</b>이 있다 — 이 Asset이 Term을 어떻게 쓰는지를 가리킨다.",
+        roles: [
+          { role: "identified_by", desc: "엔티티를 식별하는 키. 거르는 값이 아니라 묶음(group-by)·조인의 기준점.", ex: "‘고객’ → <code>CUST_NO</code>" },
+          { role: "stored_as", desc: "개념의 값이 그대로 담긴 컬럼. 행 단위로 직접 쓴다(목록·필터·합계).", ex: "‘익스포저’ → <code>EXPSR_AMT</code>" },
+          { role: "expressed_as", desc: "개념이 특정 값으로 실현됨(컬럼+값). 그 리터럴을 필터에 그대로 쓴다.", ex: "‘해지’ → <code>ACCT_STAT_CD = '40'</code>" },
+          { role: "segmented_by", desc: "“~별”로 나누는 묶음 차원.", ex: "‘신청채널’ → <code>CHNL_CD</code> (“채널별 건수”)" },
+          { role: "attribute_of", desc: "개념에 딸린 속성 컬럼.", ex: "‘고객’ → <code>CUST_NM</code>(고객명)" },
+          { role: "dated_by", desc: "개념의 기준 시점 컬럼. “X월에 ~된”은 이 컬럼으로 거른다. 테이블에 날짜가 여럿이어도 다른 걸로 추측하지 않는다.", ex: "‘대출계좌’ → <code>DSBR_DT</code>(실행일)" },
+          { role: "measured_by", desc: "비율·평균·총계 같은 정본 지표가 따로 있다는 표시. 직접 계산하지 말고 지표 정의(공식·기준 필터)를 가져와 그대로 따른다.", ex: "‘대출잔액’ → 지표 ‘대출잔액총계’" },
         ],
-        example: "“세금면제” ↔ TAX_EXMP_FLG (AI 생성, 신뢰도 High → 자동 확정). AI가 만든 연결이라도 신뢰도가 Low면 사람 검토 큐로 간다.",
+        standards: "이렇게 역할을 붙인 Term↔Asset 연결을 실제로 정의·저장·운영하는 업계 표준 시맨틱 레이어가 있다 — 대표적으로 dbt MetricFlow, 그리고 도구 간 공통 규격을 맞추려는 OSI(Open Semantic Interchange).",
         relation: { text: "Term의 한쪽 끝과 Asset의 다른 쪽 끝을 잡는다. 이 연결을 타고 Term의 의미가 Asset에 닿는다.", to: ["term", "asset"] },
       },
       lineage: {

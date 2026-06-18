@@ -565,6 +565,17 @@
       pad.appendChild(sec("Link 만드는 방식", ol));
     }
 
+    // link roles (Term ↔ Asset, 역할별)
+    if (n.roles) {
+      const rl = h("div", "cat-roles");
+      n.roles.forEach(r => {
+        const item = h("div", "role-item");
+        item.innerHTML = `<div class="role-name">${r.role}</div><div class="role-desc">${r.desc}</div><div class="role-ex">예: ${r.ex}</div>`;
+        rl.appendChild(item);
+      });
+      pad.appendChild(sec("역할 종류 (role)", rl));
+    }
+
     // worked example (+ optional flow visual). flow가 있으면 예시를 propagation 앞에 둔다.
     const exampleSection = () => {
       if (!(n.example || n.inAction || n.flow)) return;
@@ -619,6 +630,8 @@
       }
       pad.appendChild(sec("관계 — 다른 노드로 이동", wrap, true));
     }
+
+    if (n.standards) pad.appendChild(h("div", "cat-foot", `<span class="cf-l">업계 표준</span>${n.standards}`));
   }
 
   /* -------------------- RESIZE -------------------- */

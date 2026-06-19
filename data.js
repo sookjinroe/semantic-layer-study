@@ -259,7 +259,6 @@ window.DATA = (function () {
           { role: "dated_by", desc: "개념의 기준 시점 컬럼. “X월에 ~된”은 이 컬럼으로 거른다. 테이블에 날짜가 여럿이어도 다른 걸로 추측하지 않는다.", ex: "‘대출계좌’ → <code>DSBR_DT</code>(실행일)" },
           { role: "measured_by", desc: "비율·평균·총계 같은 정본 지표가 따로 있다는 표시. 직접 계산하지 말고 지표 정의(공식·기준 필터)를 가져와 그대로 따른다.", ex: "‘대출잔액’ → 지표 ‘대출잔액총계’" },
         ],
-        standards: "이렇게 역할을 붙인 Term↔Asset 연결을 실제로 정의·저장·운영하는 업계 표준 시맨틱 레이어가 있다 — 대표적으로 dbt MetricFlow, 그리고 도구 간 공통 규격을 맞추려는 OSI(Open Semantic Interchange).",
         relation: { text: "Term의 한쪽 끝과 Asset의 다른 쪽 끝을 잡는다. 이 연결을 타고 Term의 의미가 Asset에 닿는다.", to: ["term", "asset"] },
       },
       lineage: {

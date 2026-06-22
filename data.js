@@ -9,7 +9,6 @@ window.DATA = (function () {
     kicker: "Semantic Layer · 스터디",
     title: "데이터에 의미를 채워 AI가 쓰게 만들기",
     paras: [
-      "컬럼명과 타입만으로는 그 컬럼이 무엇인지 알 수 없다. <code>TAX_EXMP_FLG CHAR(1)</code>을 받아도 값이 무엇을 뜻하는지·어떤 업무에 쓰이는지·누가 책임지는지는 컬럼 밖에 있다. 그 ‘컬럼 밖의 의미’는 DB 안에 없고 코드·BI·카탈로그에 흩어져 있으며, 상당 부분은 아직 어디에도 없다. 이 스터디는 그 흩어진 의미를 모아 채워 AI 에이전트가 데이터를 쓰게 만드는 일을 다룬다.",
     ],
     concepts: [
       { term: "semantic layer", tag: "시장 용어 · 의미를 좁혀 씀",
@@ -25,8 +24,8 @@ window.DATA = (function () {
 
   /* ---- CH2 sources (top→bottom follows doc body order: raw→refined) ---- */
   const tiers = [
-    { id: "raw", name: "원시 시그널", note: "구조와 구현 — 가장 많은 해석이 필요하다" },
-    { id: "behavior", name: "행동 증거", note: "사용 패턴 — 의미로 바꾸려면 해석을 거쳐야 한다" },
+    { id: "raw", name: "RAW 시그널", note: "구조와 구현 — 가장 많은 해석이 필요하다" },
+    { id: "behavior", name: "사용 시그널", note: "사용 패턴 — 의미로 바꾸려면 해석을 거쳐야 한다" },
     { id: "refined", name: "정제된 의미", note: "사람이 검토해 둔 정의 — 읽으면 바로 쓸 수 있다" },
   ];
 
@@ -35,7 +34,7 @@ window.DATA = (function () {
       id: "catalog", name: "Catalog", tier: "refined", color: "catalog",
       essence: "사람이 검토해 둔 정의를 제공",
       origin: "수기 관리", load: "낮음", drillIn: true,
-      lead: "Catalog는 시그널 중 정제된 의미를 담는 소스다. 다른 소스가 해석을 거쳐야 하는 원시 시그널·행동 증거인 반면, Catalog는 사람이 이미 검토해 둔 정의를 제공한다.",
+      lead: "Catalog는 시그널 중 정제된 의미를 담는 소스다. 다른 소스가 해석을 거쳐야 하는 원시 시그널·행동 데이터인 반면, Catalog는 사람이 이미 검토해 둔 정의를 제공한다.",
       signals: [
         ["Glossary · Term", "비즈니스 용어의 공식 정의와 개념 단위"],
         ["Domain · Subdomain", "데이터의 소유·책임 조직 단위"],
@@ -190,11 +189,21 @@ window.DATA = (function () {
   const catalog = {
     nodes: {
       glossary: {
-        name: "Glossary", axis: "meaning", essence: "비즈니스 용어의 공식 정의를 모아둔 곳",
-        lead: "같은 단어가 부서마다 다르게 쓰이는 걸 막는 단일 기준이다.",
-        distinct: { a: "데이터 딕셔너리", av: "타입·NULL 같은 기술 정보를 자동으로 뽑는다", b: "Glossary", bv: "사람이 합의한 비즈니스 의미를 담는다" },
-        facts: [["여러 개 공존", "Finance Glossary, HR Glossary가 따로 운영되고 서로의 용어는 동의어로 연결한다. 부서마다 용어 체계와 담당자가 달라서, 한 덩어리로 묶으면 누가 무엇을 관리하는지 흐려진다 — 나눠야 각 부서가 자기 용어를 책임진다."]],
-        example: "“활성 사용자”를 마케팅은 “월 1회 접속”, 재무는 “유료 결제 중”으로 본다. Glossary가 “최근 30일 내 유료 결제”를 공식 정의로 등록해두면, 누가 “활성 사용자 수” 리포트를 돌려도 같은 숫자가 나온다 — 없으면 부서마다 다른 수를 들고 와 회의가 멈춘다.",
+        name: "Glossary", axis: "meaning", essence: "비즈니스 용어의 공식 정의를 못 박는 단일 기준",
+        concepts: [
+          {
+            tag: "단일 기준",
+            title: "한 용어 = 공식 정의 하나",
+            body: "한 용어에 조직이 합의한 정의를 <b>단 하나만</b> 등록한다. 이후 모든 리포트·대시보드·분석이 그 정의를 가리키므로, 누가 같은 지표를 돌려도 같은 숫자가 나온다.",
+            example: "Finance Glossary에 “활성 사용자 = 최근 30일 내 유료 결제”를 공식 정의로 등록해두면, 재무·운영·경영진 누가 “활성 사용자 수”를 봐도 같은 정의·같은 숫자를 본다.",
+          },
+          {
+            tag: "여러 개 공존",
+            title: "Glossary는 부서 단위로 나눈다",
+            body: "Finance Glossary는 재무팀이, HR Glossary는 인사팀이 자기 용어를 관리한다. 한 덩어리로 묶으면 누가 무엇을 관리하는지 흐려지므로 나누고, 부서를 넘는 같은 개념은 <b>동의어로 연결</b>해 ‘같은 말, 다른 기준’임을 드러낸다.",
+            example: "마케팅은 “Marketing Glossary”를 따로 두고 “활성 사용자 = 월 1회 접속”을 등록한다. 두 “활성 사용자”는 각자 Glossary 안에서는 단일 기준이고, 동의어로 이어져 같은 말이지만 기준이 다름이 드러난다.",
+          },
+        ],
         relation: { text: "Category를 담고, Category가 Term을 담는 최상위다.", chain: ["Finance Glossary", "“대출 운영” Category", "“세금면제” Term"], to: ["category", "term"] },
       },
       category: {
@@ -248,17 +257,26 @@ window.DATA = (function () {
         relation: { text: "위로는 Term이 Link로 의미를 주고, 옆으로는 Domain이 소유를 주고, 자기들끼리는 lineage로 이어진다.", chain: ["TAX_EXMP_FLG", "“세금면제”(의미) + Finance(소유) + lineage(흐름)"], to: ["term", "domain", "link", "lineage"] },
       },
       link: {
-        name: "Link", axis: "edge", card: "N:N", essence: "Term ↔ Asset 연결 · 연결마다 역할(role)을 가진다",
-        lead: "Link는 Term과 Asset을 잇는 연결이고, 그 연결엔 <b>역할(role)</b>이 있다 — 이 Asset이 Term을 어떻게 쓰는지를 가리킨다.",
-        roles: [
-          { role: "identified_by", desc: "엔티티를 식별하는 키. 거르는 값이 아니라 묶음(group-by)·조인의 기준점.", ex: "‘고객’ → <code>CUST_NO</code>" },
-          { role: "stored_as", desc: "개념의 값이 그대로 담긴 컬럼. 행 단위로 직접 쓴다(목록·필터·합계).", ex: "‘익스포저’ → <code>EXPSR_AMT</code>" },
-          { role: "expressed_as", desc: "개념이 특정 값으로 실현됨(컬럼+값). 그 리터럴을 필터에 그대로 쓴다.", ex: "‘해지’ → <code>ACCT_STAT_CD = '40'</code>" },
-          { role: "segmented_by", desc: "“~별”로 나누는 묶음 차원.", ex: "‘신청채널’ → <code>CHNL_CD</code> (“채널별 건수”)" },
-          { role: "attribute_of", desc: "개념에 딸린 속성 컬럼.", ex: "‘고객’ → <code>CUST_NM</code>(고객명)" },
-          { role: "dated_by", desc: "개념의 기준 시점 컬럼. “X월에 ~된”은 이 컬럼으로 거른다. 테이블에 날짜가 여럿이어도 다른 걸로 추측하지 않는다.", ex: "‘대출계좌’ → <code>DSBR_DT</code>(실행일)" },
-          { role: "measured_by", desc: "비율·평균·총계 같은 정본 지표가 따로 있다는 표시. 직접 계산하지 말고 지표 정의(공식·기준 필터)를 가져와 그대로 따른다.", ex: "‘대출잔액’ → 지표 ‘대출잔액총계’" },
-        ],
+        name: "Link", axis: "edge", card: "N:N", essence: "Term ↔ Asset 연결 · 의미 배정(semantic assignment)",
+        lead: "Link은 Term과 Asset을 잇는 관계다. 카탈로그에서 이 관계는 <b>의미 배정(semantic assignment)</b> — “이 컬럼에 담긴 데이터가 이 Term의 의미를 가진다”는 선언이다. (개념끼리 잇는 Term↔Term 관계도 있음.) 단순한 선이 아니라 자체 속성을 갖는 관계다.",
+        holds: {
+          head: "의미 배정이 담는 것",
+          items: [
+            ["상태 (status)", "이 배정을 얼마나 믿는지: 제안됨(사람) · 발견됨(엔진) · 검증됨 · 폐기됨"],
+            ["신뢰도 (confidence)", "0(모름) ~ 100(확신)"],
+            ["책임자 (steward)", "이 배정을 승인·관리하는 사람"],
+          ],
+        },
+        semanticLayer: {
+          head: "관련 개념 — 시맨틱 레이어",
+          intro: "카탈로그 링크는 “의미”까지만 배정한다. 그 컬럼이 쿼리에서 어떻게 쓰이는지는 시맨틱 레이어가 <b>역할(role)</b>로 타이핑한다.",
+          roles: [
+            ["entity", "식별 키", "행을 식별하는 키(primary·foreign). 값으로 거르는 게 아니라, 테이블을 잇는 조인과 묶음의 기준점이 된다."],
+            ["dimension", "차원", "묶고 거르는 축. 범주형(categorical)은 “~별” 묶음과 값 필터에, 시간(time)은 기간 필터에 쓰인다."],
+            ["measure", "측정값", "집계하는 숫자 컬럼(sum·count·avg…). 합계·평균을 내는 재료이자 메트릭의 바탕."],
+            ["metric", "지표", "measure 위에 정의된 정본 계산(비율·누계 등). 직접 계산하지 않고 이 정의를 따른다."],
+          ],
+        },
         relation: { text: "Term의 한쪽 끝과 Asset의 다른 쪽 끝을 잡는다. 이 연결을 타고 Term의 의미가 Asset에 닿는다.", to: ["term", "asset"] },
       },
       lineage: {

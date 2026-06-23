@@ -403,6 +403,7 @@ b, strong { font-weight: 600; color: var(--fg); }
 .sig-item { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: baseline; }
 .sig-item .si-k { font-family: var(--mono); font-size: 12.5px; font-weight: 600; color: var(--fg); white-space: nowrap; }
 .sig-item .si-v { font-size: 13px; color: var(--fg-muted); line-height: 1.45; }
+.sig-item .si-ex { margin-top: 7px; border: 1px solid var(--rule-soft); background: var(--bg-sunk); padding: 9px 12px; font-size: 12.5px; line-height: 1.5; color: var(--fg); border-radius: var(--radius); }
 
 /* code sample */
 .panel pre {
@@ -521,6 +522,26 @@ b, strong { font-weight: 600; color: var(--fg); }
 .example-box { border: 1px solid var(--rule-soft); background: var(--bg-sunk); padding: 13px 15px; font-size: 13.5px; line-height: 1.55; color: var(--fg); border-radius: var(--radius); }
 .example-box.action { border-color: var(--rule-soft); background: var(--bg-sunk); }
 .example-box .exa-k { font-family: var(--mono); font-size: 10px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+
+/* glossary concepts — each core idea + its own example */
+.gl-concepts { display: flex; flex-direction: column; gap: 18px; }
+.gl-concept + .gl-concept { border-top: 1px solid var(--rule-soft); padding-top: 18px; }
+.gl-concept .glc-tag { display: inline-block; font-family: var(--mono); font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--c-catalog); border: 1px solid var(--rule-soft); border-radius: 999px; padding: 2px 10px; margin-bottom: 9px; }
+.gl-concept .glc-title { font-weight: 600; font-size: 14.5px; color: var(--fg); margin-bottom: 6px; }
+.gl-concept .glc-body { font-size: 13px; line-height: 1.62; color: var(--fg-muted); margin-bottom: 10px; }
+.gl-concept .glc-body b { color: var(--fg); font-weight: 600; }
+.gl-concept .glc-ex { border: 1px solid var(--rule-soft); background: var(--bg-sunk); padding: 11px 13px; font-size: 12.5px; line-height: 1.55; color: var(--fg); border-radius: var(--radius); }
+.gl-concept .glc-ex .glc-ex-k { display: block; font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--accent); margin-bottom: 5px; }
+
+/* link: section dek + semantic-layer role list */
+.sec-dek { font-size: 12px; color: var(--fg-faint); margin: -2px 0 11px; font-style: italic; }
+.sl-intro { font-size: 13px; line-height: 1.6; color: var(--fg-muted); margin: 0 0 14px; }
+.sl-roles { display: flex; flex-direction: column; gap: 11px; }
+.sl-role + .sl-role { border-top: 1px solid var(--rule-soft); padding-top: 11px; }
+.sl-role .slr-head { display: flex; align-items: baseline; gap: 9px; margin-bottom: 4px; }
+.sl-role .slr-name { font-family: var(--mono); font-size: 12.5px; font-weight: 600; color: var(--c-catalog); }
+.sl-role .slr-kr { font-size: 12px; color: var(--fg-faint); }
+.sl-role .slr-desc { font-size: 12.5px; line-height: 1.55; color: var(--fg-muted); }
 
 /* relation chain + nav chips */
 .rel-chain { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; margin: 12px 0; }

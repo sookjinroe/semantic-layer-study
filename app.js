@@ -524,6 +524,22 @@
     pad.appendChild(h("h1", "p-title", n.name));
     pad.appendChild(h("p", "p-lead", n.essence));
     if (n.lead) pad.appendChild(h("p", null, n.lead));
+    if (n.leadExample) pad.appendChild(h("div", "example-box", n.leadExample));
+
+    // concepts — each core idea with its own example (Glossary: 단일 기준 / 여러 개 공존)
+    if (n.concepts && n.concepts.length) {
+      const wrap = h("div", "gl-concepts");
+      n.concepts.forEach(c => {
+        const item = h("div", "gl-concept");
+        item.innerHTML = `
+          <span class="glc-tag">${c.tag}</span>
+          <div class="glc-title">${c.title}</div>
+          <div class="glc-body">${c.body}</div>
+          ${c.example ? `<div class="glc-ex"><span class="glc-ex-k">예시</span>${c.example}</div>` : ""}`;
+        wrap.appendChild(item);
+      });
+      pad.appendChild(sec("핵심 — 두 가지 일", wrap));
+    }
 
     // distinct — comparison callout
     if (n.distinct) {
@@ -547,7 +563,7 @@
     // facts
     if (n.facts && n.facts.length) {
       const sl = h("div", "sig-list");
-      n.facts.forEach(([k, v]) => sl.appendChild(h("div", "sig-item", `<span class="si-k">${k}</span><span class="si-v">${v}</span>`)));
+      n.facts.forEach(([k, v, ex]) => sl.appendChild(h("div", "sig-item", `<span class="si-k">${k}</span><span class="si-v">${v}${ex ? `<div class="si-ex">예: ${ex}</div>` : ""}</span>`)));
       pad.appendChild(sec("핵심", sl));
     }
 
@@ -565,15 +581,28 @@
       pad.appendChild(sec("Link 만드는 방식", ol));
     }
 
-    // link roles (Term ↔ Asset, 역할별)
-    if (n.roles) {
-      const rl = h("div", "cat-roles");
-      n.roles.forEach(r => {
-        const item = h("div", "role-item");
-        item.innerHTML = `<div class="role-name">${r.role}</div><div class="role-desc">${r.desc}</div><div class="role-ex">예: ${r.ex}</div>`;
+    // link: semantic assignment holds (status/confidence/steward)
+    if (n.holds) {
+      const wrap = h("div");
+      if (n.holds.sub) wrap.appendChild(h("div", "sec-dek", n.holds.sub));
+      const sl = h("div", "sig-list");
+      n.holds.items.forEach(([k, v]) => sl.appendChild(h("div", "sig-item", `<span class="si-k">${k}</span><span class="si-v">${v}</span>`)));
+      wrap.appendChild(sl);
+      pad.appendChild(sec(n.holds.head, wrap));
+    }
+
+    // link: related concept — semantic layer role typing
+    if (n.semanticLayer) {
+      const wrap = h("div");
+      if (n.semanticLayer.intro) wrap.appendChild(h("p", "sl-intro", n.semanticLayer.intro));
+      const rl = h("div", "sl-roles");
+      n.semanticLayer.roles.forEach(([role, kr, desc]) => {
+        const item = h("div", "sl-role");
+        item.innerHTML = `<div class="slr-head"><span class="slr-name">${role}</span><span class="slr-kr">${kr}</span></div><div class="slr-desc">${desc}</div>`;
         rl.appendChild(item);
       });
-      pad.appendChild(sec("역할 종류 (role)", rl));
+      wrap.appendChild(rl);
+      pad.appendChild(sec(n.semanticLayer.head, wrap));
     }
 
     // worked example (+ optional flow visual). flow가 있으면 예시를 propagation 앞에 둔다.
